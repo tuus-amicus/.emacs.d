@@ -26,7 +26,8 @@ Probably you don't have **makeinfo** installed. You can install it, or if you do
 
 **master** -> was been tested on linux and mac
 
-## HOW TO INSTALL ##
-To enable this config just clone that repo to ~/.emacs.d/ directory (by default). [^~ means home dir] 
-Before you move init file to ~/.emacs.d 
+
+### TODO ###
+- [ ] add .gitignore and create .emacs.d dependencies
+- [ ] HOW TO INSTALL
   
