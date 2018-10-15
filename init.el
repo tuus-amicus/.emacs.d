@@ -71,7 +71,7 @@
                         py-isort
                         python-mode
 			auto-complete
-			ipython
+;			ipython
 			ido
 			zenburn-theme
                         ))
@@ -147,7 +147,7 @@
  '(c-tab-always-indent (quote other))
  '(custom-safe-themes
    (quote
-    ("599f1561d84229e02807c952919cd9b0fbaa97ace123851df84806b067666332" "7ef2884658a1fed818a11854c232511fa25721c60083a2695e6ea34ce14777ee" "67e998c3c23fe24ed0fb92b9de75011b92f35d3e89344157ae0d544d50a63a72" "4528fb576178303ee89888e8126449341d463001cb38abe0015541eb798d8a23" default)))
+    ("ec5f697561eaf87b1d3b087dd28e61a2fc9860e4c862ea8e6b0b77bd4967d0ba" "599f1561d84229e02807c952919cd9b0fbaa97ace123851df84806b067666332" "7ef2884658a1fed818a11854c232511fa25721c60083a2695e6ea34ce14777ee" "67e998c3c23fe24ed0fb92b9de75011b92f35d3e89344157ae0d544d50a63a72" "4528fb576178303ee89888e8126449341d463001cb38abe0015541eb798d8a23" default)))
  '(package-selected-packages
    (quote
     (exec-path-from-shell python-environment virtualenvwrapper ipython let-alist))))
