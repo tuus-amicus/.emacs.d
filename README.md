@@ -26,8 +26,15 @@ Probably you don't have **makeinfo** installed. You can install it, or if you do
 
 **master** -> was been tested on linux and mac
 
+### HOW TO INSTALL ###
+There are 2 ways to install:
+#### Fresh installing ####
+Clone repo to ~/ directory (default path where .emacs.d settings store)
+
+#### Only init.el ####
+Clone repo outside ~/ directory , copy init.el to ~/.emacs.d with .git for controlling changes of init.el file
 
 ### TODO ###
-- [ ] add .gitignore and create .emacs.d dependencies
-- [ ] HOW TO INSTALL
+- [x] add .gitignore and create .emacs.d dependencies
+- [x] HOW TO INSTALL
   
