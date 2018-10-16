@@ -3,3 +3,6 @@ el-get/
 elpa
 /history
 ac-comphist.dat
+.*
+*~
+ido.last
