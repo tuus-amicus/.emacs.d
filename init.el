@@ -77,6 +77,7 @@
 ;			ipython
 			ido
 			zenburn-theme
+			multiple-cursors
                         ))
 
 (defun cfg:install-packages ()
@@ -139,6 +140,9 @@
 (setq-default py-shell-name "ipython")
 (setq-default py-which-bufname "IPython")
 
+;; ==MULTIPLE_CURSOR==
+(require 'multiple-cursors)
+
 ;; ==CUSTOM THEME==
 ;;; Maybe some day need to delete to fix problems
 (custom-set-variables
@@ -153,7 +157,7 @@
     ("ec5f697561eaf87b1d3b087dd28e61a2fc9860e4c862ea8e6b0b77bd4967d0ba" "599f1561d84229e02807c952919cd9b0fbaa97ace123851df84806b067666332" "7ef2884658a1fed818a11854c232511fa25721c60083a2695e6ea34ce14777ee" "67e998c3c23fe24ed0fb92b9de75011b92f35d3e89344157ae0d544d50a63a72" "4528fb576178303ee89888e8126449341d463001cb38abe0015541eb798d8a23" default)))
  '(package-selected-packages
    (quote
-    (exec-path-from-shell python-environment virtualenvwrapper ipython let-alist))))
+    (multiple-cursors exec-path-from-shell python-environment virtualenvwrapper ipython let-alist))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -212,7 +216,21 @@
 (global-set-key (kbd "<f9>") 'bs-show) ;; запуск buffer selection кнопкой F2
 
 (global-unset-key (kbd "C-/")) ; Unset C-/ (undo) and 
-(global-set-key (kbd "C-/") 'comment-or-uncomment-region) ; set to comment-region
+(global-set-key (kbd "C-/") 'comment-or-uncomment-region) ; set to comment-regione
+
+;; Multiple cursors
+
+;;;When you have an active region that spans multiple lines, the following will add a cursor to each line:
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines) 
+
+;;; When you want to add multiple cursors not based on continuous lines, but based on keywords in the buffer, use:s
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+;; First mark the word, then add more cursors.
+;;To get out of multiple-cursors-mode, press <return> or C-g. The latter will first disable multiple regions before disabling multiple cursors. If you want to insert a newline in multiple-cursors-mode, use C-j.
+;; Bind mouse click
+(global-set-key (kbd "C-S-<mouse-1>") 'mc/add-cursor-on-click)
 
 ;; ==== C++ custom-style ====
 ; style I want to use in c++ mode
