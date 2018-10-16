@@ -240,6 +240,10 @@
       (delete-window window))))
 
 (add-hook 'next-error-hook 'kill-grep-window)
+
+;; Setup /bin/bash as default bash instead of zsh ;;
+(setq-default explicit-shell-file-name "/bin/bash")
+
 ;; ====================BIN==================== ;;
 
 ;; ==== TABS instead of Spaces ====
