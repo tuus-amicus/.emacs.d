@@ -26,7 +26,9 @@
       (append
        '(
          el-get
-         flycheck
+         flycheck ;; Check syntax
+	 ;;Python packages
+	 autopair ;; auto close braces
          highlight-parentheses
          indent-guide
          json-mode
@@ -36,6 +38,7 @@
          popup
          powerline
          py-autopep8
+;	 linum-mode ;; numerations of lines
          pyvenv
          virtualenvwrapper
 	 dash
@@ -44,7 +47,7 @@
 	 let-alist
 	 jedi
 	 nav
-	 idomenu
+	 idomenu ;; Interactive buffers
          )
        (mapcar 'el-get-as-symbol (mapcar 'el-get-source-name el-get-sources))))
 
