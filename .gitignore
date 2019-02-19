@@ -6,6 +6,8 @@ elpa
 /history
 ac-comphist.dat
 .*
+.#*
+/configuration.el
 *~
 ido.last
 semanticdb

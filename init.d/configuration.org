@@ -1,0 +1,269 @@
+#+TITLE: Emacs configuration
+#+STARTUP: indent
+#+OPTIONS: H:5 num:nil tags:nil toc:nil timestamps:t
+#+DESCRIPTION: Loading emacs configuration using org-babel
+#+TAGS: emacs
+#+CATEGORIES: editing
+
+* Before start
+  Setup repositories for package and auto download use-package if it's missing.
+  This is article [[https://glyph.twistedmatrix.com/2015/11/editor-malware.html][Your editor is malware]] explains why you should use TLS connection with package resources.
+  Secure environment include code to enable TLS and trust connections to package repositories.
+  It may need *gnutls* & *python* installed before 
+
+** Secure environment
+  ;; Should be tested it on linux and mac. 'cuz python may not be installed
+  Because Emacs does not distribute trust root certificates. Although the set of cabforum certificates are already probably on your computer in various forms,
+  you still have to acquire them in a format usable by Emacs somehow. There are a variety of ways, but in the interests of brevity and cross-platform compatibility, 
+  my preferred mechanism is to get the certifi package from PyPI, with python -m pip install --user certifi or similar.
+
+  #+BEGIN_SRC shell :exports none
+  python -m pip install --user certifi
+  #+END_SRC
+  
+  There is code which enables trusted certificate to download from repos
+  Maybe you'll need *gnutls* & *python* installed first
+  #+BEGIN_SRC emacs-lisp
+  (require 'cl)
+  (setq tls-checktrust t)
+
+  (setq python (or (executable-find "python")))
+
+  (let ((trustfile
+         (replace-regexp-in-string
+          "\\\\" "/"
+          (replace-regexp-in-string
+           "\n" ""
+           (shell-command-to-string (concat python " -m certifi"))))))
+    (setq tls-program
+          (list
+           (format "gnutls-cli%s --x509cafile %s -p %%p %%h" trustfile)))
+    (setq gnutls-verify-error t)
+    (setq gnutls-trustfiles (list trustfile)))
+  #+END_SRC
+
+* Installing
+** Package archives:
+
+First of all, [[https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Package-Archives][ELPA]] is the name of a specification, the Emacs Lisp Package Archive. There's three widely known implementations of that specification:
+- GNU ELPA
+- Marmalade
+- MELPA
+
+[[http://elpa.gnu.org/][GNU ELPA]] is the official GNU Emacs archive, enabled out of the box for sufficiently new Emacs installations. It is comparatively small, contributing to it requires copyright assignment and cooperating with the official mailing list. It is the closest thing we have to a vetting comparable to a Linux distribution package archive.
+
+[[https://marmalade-repo.org/][Marmalade]] is an unofficial archive with a good amount of versioned packages. Authors and maintainers need to upload their releases manually to it. Vetting is done once for every new member before allowing them to have an user account, after that is done, they are free to release as they wish.
+
+[[https://melpa.org/#/][MELPA]] is another unofficial archive with the largest amount of packages. Each package is briefly vetted for code style with its pull request for inclusion, after that packages are automatically built from their (usually VCS) sources. Rebuilds can happen every hour. There is also MELPA stable which builds tagged releases only, but has a lot less packages, less even than Marmalade.
+
+Each archive will write its files in a separate archive directory. 
+I set secure connection to package repository and because the default setting for package-archives is to use the HTTP access to the GNU archive, I set the variable to `nil` before adding the HTTPS variants.
+
+#+name: credmp-package-infrastructure
+#+begin_src emacs-lisp
+
+  (defvar gnu '("gnu" . "https://elpa.gnu.org/packages/"))
+  (defvar melpa '("melpa" . "https://melpa.org/packages/"))
+  (defvar melpa-stable '("melpa-stable" . "https://stable.melpa.org/packages/"))
+  (defvar org-elpa '("org" . "http://orgmode.org/elpa/"))
+
+  (setq package-archives nil)
+  (add-to-list 'package-archives melpa-stable t)
+  (add-to-list 'package-archives melpa t)
+  (add-to-list 'package-archives gnu t)
+  (add-to-list 'package-archives org-elpa t)
+#+end_src
+
+Initialize the archive and refresh the contents in case there is no cached archive.
+
+#+BEGIN_SRC emacs-lisp
+  (package-initialize)
+
+  (unless (and (file-exists-p (concat init-dir "elpa/archives/gnu"))
+               (file-exists-p (concat init-dir "elpa/archives/melpa"))
+               (file-exists-p (concat init-dir "elpa/archives/melpa-stable")))
+    (package-refresh-contents))
+#+END_SRC
+ 
+At each *load the package* list will be evaluated and any missing
+packages will be installed. The *packages-install* function deals with
+this check and takes care of any loading of the packages.
+
+#+name: credmp-package-installer
+#+begin_src emacs-lisp
+  (defun packages-install (&rest packages)
+    (message "running packages-install")
+    (mapc (lambda (package)
+            (let ((name (car package))
+                  (repo (cdr package)))
+              (when (not (package-installed-p name))
+                (let ((package-archives (list repo)))
+                  (package-initialize)
+                  (package-install name)))))
+          packages)
+    (package-initialize)
+    (delete-other-windows))
+#+end_src
+
+** Package with dependencies
+
+#+name: credmp-package-installer
+#+begin_src emacs-lisp
+  ;; Install extensions if they're missing
+  (defun init--install-packages ()
+    (message "Lets install some packages")
+    (packages-install
+     ;; Since use-package this is the only entry here
+     ;; ALWAYS try to use use-package!
+     (cons 'use-package melpa)
+     ))
+
+  (condition-case nil
+      (init--install-packages)
+    (error
+     (package-refresh-contents)
+     (init--install-packages)))
+#+end_src
+
+** Diminish modes
+*TODO: read more about diminish*
+
+#+begin_src emacs-lisp
+  (use-package diminish
+    :ensure t)
+#+end_src
+
+* Customizations
+** UI
+*** Maximize work area
+Disable the menu, tool and scroll bar since they just take up space.
+#+BEGIN_SRC emacs-lisp
+  (menu-bar-mode 0)
+  (tool-bar-mode 0)
+  (when (window-system) (scroll-bar-mode 0))
+#+END_SRC
+*** Font
+    Set font and font size
+    #+BEGIN_SRC emacs-lisp
+      (set-frame-font "Hack-12" nil t)
+    #+END_SRC
+*** Column number
+   Show column number in the info bar
+   #+BEGIN_SRC emacs-lisp
+     (column-number-mode 1)
+   #+END_SRC
+*** Discover-ability
+Pressing command with delay pops up in minibuffer list of commands with descriptions (HOT KEYS)
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+    :ensure t
+    :diminish which-key-mode
+    :config
+    (which-key-mode))
+#+END_SRC
+** Behaviour
+*** Default
+Changing the default emacs behavior
+   #+BEGIN_SRC emacs-lisp
+     (setq-default
+        load-prefer-newer t             ;; Avoid loading outdated byte code files.
+        inhibit-splash-screen t         ;; Dismiss the startup screen.
+        initial-scratch-message "")      ;; Empty scratch buffer.
+     (show-paren-mode 1)                ;; Highlight matching brackets.
+
+     ;;(indent-tabs-mode nil)           ;; Don't use tab for indenting.
+   #+END_SRC
+
+*** Scrolling
+#+BEGIN_SRC emacs_lisp
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
+(setq mouse-wheel-progressive-speed nil)
+#+END_SRC
+** Mac keys 
+Change command to meta, and ignore option to use weird Norwegian
+keyboard
+
+#+name: credmp-keys
+#+begin_src emacs-lisp
+  (setq mac-option-modifier 'none)
+  (setq mac-command-modifier 'meta)
+  (setq ns-function-modifier 'hyper)
+#+end_src
+** Backup / autosave
+   One annoying thing with emacs is it that it leaves backup files all
+   over the place.  Fixing that by dumping all backup/autosave files
+   in to one directory.
+   #+BEGIN_SRC emacs-lisp
+     (defvar backup-dir (expand-file-name "~/.emacs.d/backup/"))
+     (defvar autosave-dir (expand-file-name "~/.emacs.d/autosave/"))
+     (setq backup-directory-alist (list (cons ".*" backup-dir))
+	   auto-save-list-file-prefix autosave-dir
+	   auto-save-file-name-transforms `((".*" ,autosave-dir t)))
+   #+END_SRC
+
+** Theme
+Point emacs to where it can find the themes.
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+     (load-theme `arc-dark-theme t)
+   #+END_SRC
+* Packages
+** Emacs
+*** Ivy / Swipper / Councel
+se the counsel and swiper packages to make the use of M-x and search a lot easier.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package counsel
+    :ensure t
+    :bind
+    (("M-x" . counsel-M-x)
+     ("M-y" . counsel-yank-pop)
+     :map ivy-minibuffer-map
+     ("M-y" . ivy-next-line)))
+
+  (use-package swiper
+    :pin melpa-stable
+    :diminish ivy-mode
+    :ensure t
+    :bind*
+    (("C-s" . swiper)
+     ("C-c C-r" . ivy-resume)
+     ("C-x C-f" . counsel-find-file)
+     ("C-c h f" . counsel-describe-function)
+     ("C-c h v" . counsel-describe-variable)
+     ("C-c i u" . counsel-unicode-char)
+     ("M-i" . counsel-imenu)
+     ("C-c g" . counsel-git)
+     ("C-c j" . counsel-git-grep)
+     ("C-c k" . counsel-ag)
+     ;;      ("C-c l" . scounsel-locate)
+     )
+    :config
+    (progn
+      (ivy-mode 1)
+      (setq ivy-use-virtual-buffers t)
+      (define-key read-expression-map (kbd "C-r") #'counsel-expression-history)
+      (ivy-set-actions
+       'counsel-find-file
+       '(("d" (lambda (x) (delete-file (expand-file-name x)))
+          "delete"
+          )))
+      (ivy-set-actions
+       'ivy-switch-buffer
+       '(("k"
+          (lambda (x)
+            (kill-buffer x)
+            (ivy--reset-state ivy-last))
+          "kill")
+         ("j"
+          ivy--switch-buffer-other-window-action
+          "other window")))))
+
+  (use-package counsel-projectile
+    :ensure t
+    :config
+    (counsel-projectile-mode))
+
+  (use-package ivy-hydra :ensure t)
+#+END_SRC
+
