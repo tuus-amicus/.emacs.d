@@ -1,3 +1,5 @@
+session.*
+tramp
 /ede-projects.el
 el-get/
 elpa
