@@ -1,28 +1,26 @@
-# README #
-
 # Before you go
 
 Before you clone repo, make sure you have everything described bellow:
 
-1. Install [Hack font](https://github.com/source-foundry/Hack)
+* Install [Hack font](https://github.com/source-foundry/Hack)
 
-2. configuration has 2 environments:
+* Choose your side: 
+    Configuration has 2 environments:
+        - Secure
+        - Not secure
 
-Secure
-Not secure
+    If you'll like to choose **secure** one, emacs may need **gnutls-cli** and **python** installed. Current configuration use Not secure, because sometimes occur certificate error.
 
-If you'll like to choose secure one, than emacs may need **gnutls-cli** and **python** installed
+* **makeinfo** & **texinfo** has to be installed for proper way to install **magit** plugin
 
-3. **makeinfo** & **texinfo** has to be installed for proper way to install **magit** plugin
+    Probably you don't have **makeinfo** installed. You can install it, or if you don't care to have **texinfo manuals** you can remove documentation building from the recipe by adding an entry to
 
-Probably you don't have **makeinfo** installed. You can install it, or if you don't care to have **texinfo manuals** you can remove documentation building from the recipe by adding an entry to
-
-```emacs
-(:name magit
-     :info nil
-     :build (("touch" "lisp/magit-autoloads.el"))
-     :build/berkeley-unix nil)
-```
+    ```emacs
+    (:name magit
+         :info nil
+         :build (("touch" "lisp/magit-autoloads.el"))
+         :build/berkeley-unix nil)
+    ```
 ***
 
 # Installation
@@ -39,4 +37,4 @@ git clone https://github.com/tuus-amicus/emacs-from-scratch ~/.emacs.d
 ```
 
 ***
-It was tesetd on **mac** and **linux**. 
+>It was tesetd on **mac** and **linux**. 
