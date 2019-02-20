@@ -236,14 +236,16 @@ Changing the default emacs behavior
 (setq mouse-wheel-progressive-speed nil)
 #+END_SRC
 *** Desktop
-#+begin_src eslip-lisp
-; Saving history and sessions
-(desktop-save-mode 1)
+#+BEGIN_SRC emacs-lisp
+;; Saving history and sessions
+;; Somewhy enabling that options disable theme, fonts, etc.
+;(desktop-save-mode 1)
 (savehist-mode 1)
-#+end_src eslip-lisp
+#+END_SRC
+
 *** Grep-find
 Open grep-find in current window
-#+begin_src eslip-list
+#+begin_src emacs-lisp
 (eval-when-compile (require 'cl))
 (defun kill-grep-window ()
   (destructuring-bind (window major-mode)
@@ -256,9 +258,10 @@ Open grep-find in current window
 #+end_src
 
 *** Default bash vs zsh
-#+begin_src eslip-lisp
-;; Setup /bin/bash as default bash instead of zsh 
-(setq-default explicit-shell-file-name "/bin/bash")
+#+begin_src emacs-lisp
+;; Setup /bin/bash as default bash instead of zsh
+;; Disabling it. Otherwise we lost aliases and paths from zsh
+;(setq-default explicit-shell-file-name "/bin/bash")
 #+end_src
 
 ** Mac keys 
@@ -451,7 +454,7 @@ Display the buffer state in the fringe.
  Packages that helps speed up coding, i.e. auto complete, boiler plates etc
 **** Autocomplete
 Some people choose Autocomple, some Company. I choose both
-#+begin_src eslip-lisp
+#+begin_src emacs-lisp
 (use-package auto-complete 
     :ensure t
     :init
@@ -616,11 +619,13 @@ Color haxvalues with their respective color.
 
 ** Misc
 *** Multiple cursors
+#+begin_src emacs-lisp
 (use-package multiple-cursors
-  :ensure t)
+:ensure t)
+#+end_src
 * Key bindings
 ** Buffer updating
-#+begin_src eslip-lisp
+#+begin_src emacs-lisp
 (global-set-key (kbd "<f5>") 'revert-buffer)
 #+end_src
 * COMMENT Custom (disabled)
@@ -633,6 +638,7 @@ Load custom plugins/fucntions from folder depends on environment
       :load-path "~/.emacs.d/plugins")
 #+END_SRC
 * TODO
+- Add Saving desktop and history sessions. With saving themes
 - Add environment Macbook to load plugins for macbook (load-path ('.../macbook.el') or so)
 - Setup correct PATH (watch templates + init.origin.org)
 - Add icons (like in sublime folders)
@@ -641,4 +647,13 @@ Load custom plugins/fucntions from folder depends on environment
 - Move from init.origin to current
 - Setup org with visualization miscs
 - MAKE TODO: (search by file)
+- Make as in [[https://github.com/hlissner/doom-emacs/tree/screenshots][DoomEmacs]]:
+  - Tab emulation
+  - Visualization of files with icons, branches, etc.
+  - Diff in gutter (git)
+  - mode-line
+  - Line numberring(nlinum)
+  - Chech company mode
+- Check more plugins [[https://github.com/emacs-tw/awesome-emacs][Here]] [[https://xmodulo.com/best-plugins-to-increase-productivity-on-emacs.html][And here]]
   
+- Orgmode for GTD [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][Here]]
