@@ -1,40 +1,42 @@
 # README #
 
-## What's This Sheet For ##
-This is init.el configuration file for emacs. It has installing preferable plugins, setup hotkeys, theme and more. 
+# Before you go
 
-## BEFORE INSTALL ##
-There are some preparations before you clone repo to avoid plugins's installation error:
+Before you clone repo, make sure you have everything described bellow:
 
-1. install python[2/3]
-2. install pip[2/3]
-3. install texinfo 
-4. makeinfo
-***
-### Why do I need to install it? ###
-makeinfo needed to be installed, for properly way to install **magit** plugin
+1. Install [Hack font]: https://github.com/source-foundry/Hack
+
+2. configuration has 2 environments:
+
+Secure
+Not secure
+
+If you'll like to choose secure one, than emacs may need **gnutls-cli** and **python** installed
+
+3. **makeinfo** & **texinfo** has to be installed for proper way to install **magit** plugin
 
 Probably you don't have **makeinfo** installed. You can install it, or if you don't care to have **texinfo manuals** you can remove documentation building from the recipe by adding an entry to
+
 ```emacs
 (:name magit
      :info nil
      :build (("touch" "lisp/magit-autoloads.el"))
      :build/berkeley-unix nil)
 ```
-
 ***
 
-**master** -> was been tested on linux and mac
+# Installation
 
-### HOW TO INSTALL ###
-There are 2 ways to install:
-#### Fresh installing ####
-Clone repo to ~/ directory (default path where .emacs.d settings store)
+0. Go to step # Before you go
 
-#### Only init.el ####
-Clone repo outside ~/ directory , copy init.el to ~/.emacs.d with .git for controlling changes of init.el file
+1. Backup your current .emacs.d folder (don't trust me)
 
-### TODO ###
-- [x] add .gitignore and create .emacs.d dependencies
-- [x] HOW TO INSTALL
-  
+2. Clone repo to .emacs.d dir
+
+```bash
+git clone https://github.com/tuus-amicus/emacs-from-scratch ~/.emacs.d
+
+```
+
+# TODO
+-[] re-write README

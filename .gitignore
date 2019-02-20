@@ -7,7 +7,9 @@ elpa
 ac-comphist.dat
 .*
 .#*
-/configuration.el
+configuration.el
+autosave/
+recentf
 *~
 ido.last
 semanticdb

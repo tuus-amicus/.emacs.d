@@ -11,7 +11,76 @@
   Secure environment include code to enable TLS and trust connections to package repositories.
   It may need *gnutls* & *python* installed before 
 
-** Secure environment
+* Package management
+
+First of all, [[https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Package-Archives][ELPA]] is the name of a specification, the Emacs Lisp Package Archive. There's three widely known implementations of that specification:
+
+- GNU ELPA
+- Marmalade
+- MELPA
+
+[[http://elpa.gnu.org/][GNU ELPA]] is the official GNU Emacs archive, enabled out of the box for sufficiently new Emacs installations. It is comparatively small, contributing to it requires copyright assignment and cooperating with the official mailing list. It is the closest thing we have to a vetting comparable to a Linux distribution package archive.
+
+[[https://marmalade-repo.org/][Marmalade]] is an unofficial archive with a good amount of versioned packages. Authors and maintainers need to upload their releases manually to it. Vetting is done once for every new member before allowing them to have an user account, after that is done, they are free to release as they wish.
+
+[[https://melpa.org/#/][MELPA]] is another unofficial archive with the largest amount of packages. Each package is briefly vetted for code style with its pull request for inclusion, after that packages are automatically built from their (usually VCS) sources. Rebuilds can happen every hour. There is also MELPA stable which builds tagged releases only, but has a lot less packages, less even than Marmalade.
+
+** Unsecure environment (but more workable)
+
+ Setup repositories for package and auto download use-package if it's missing.
+   #+BEGIN_SRC emacs-lisp
+     (require 'package)
+
+     (setq package-archives
+           '(("melpa-stable" . "https://stable.melpa.org/packages/")
+             ("melpa"        . "https://melpa.org/packages/")
+             ("gnu"          . "https://elpa.gnu.org/packages/")
+             ("org"          . "https://orgmode.org/elpa/")))
+
+     (package-initialize)
+
+     (when (not package-archive-contents)
+       (package-refresh-contents))
+
+     (setq package-enable-at-startup nil)
+
+     ;; Pin melpa-stable for packages not under use-package control, i.e
+     ;; dependencies and use-package itself.
+     (setq package-pinned-packages
+           '((use-package . "melpa-stable")
+             ;; Deps
+             (async       . "melpa-stable")
+             (bind-key    . "melpa-stable")
+             (dash        . "melpa-stable")
+             (diminish    . "melpa-stable")
+             (epl         . "melpa-stable")
+             (git-commit  . "melpa-stable")
+             (magit-popup . "melpa-stable")
+             (pkg-info    . "melpa-stable")
+             (popup       . "melpa-stable")
+             (s           . "melpa-stable")
+             (with-editor . "melpa-stable")))
+
+     (unless (package-installed-p 'use-package)
+       (package-install 'use-package))
+     (unless (package-installed-p 'diminish)
+       (package-install 'diminish))
+   #+END_SRC
+
+   Let use-package handle all the packages I use
+   #+BEGIN_SRC emacs-lisp
+     (eval-when-compile
+       (require 'use-package))
+     (require 'diminish)                ;; if you use :diminish
+     (require 'bind-key)                ;; if you use any :bind variant
+   #+END_SRC
+
+   Install missing packages.
+   #+BEGIN_SRC emacs-lisp
+     (setq use-package-always-ensure t)
+   #+END_SRC
+** COMMENT Secure environment
+
   ;; Should be tested it on linux and mac. 'cuz python may not be installed
   Because Emacs does not distribute trust root certificates. Although the set of cabforum certificates are already probably on your computer in various forms,
   you still have to acquire them in a format usable by Emacs somehow. There are a variety of ways, but in the interests of brevity and cross-platform compatibility, 
@@ -27,7 +96,9 @@
   (require 'cl)
   (setq tls-checktrust t)
 
-  (setq python (or (executable-find "python")))
+  (setq python (or (executable-find "py.exe")
+                   (executable-find "python")
+                   ))
 
   (let ((trustfile
          (replace-regexp-in-string
@@ -37,26 +108,12 @@
            (shell-command-to-string (concat python " -m certifi"))))))
     (setq tls-program
           (list
-           (format "gnutls-cli%s --x509cafile %s -p %%p %%h" trustfile)))
+           (format "gnutls-cli%s --x509cafile %s -p %%p %%h"
+                   (if (eq window-system 'w32) ".exe" "") trustfile)))
     (setq gnutls-verify-error t)
     (setq gnutls-trustfiles (list trustfile)))
   #+END_SRC
-
-* Installing
-** Package archives:
-
-First of all, [[https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Package-Archives][ELPA]] is the name of a specification, the Emacs Lisp Package Archive. There's three widely known implementations of that specification:
-- GNU ELPA
-- Marmalade
-- MELPA
-
-[[http://elpa.gnu.org/][GNU ELPA]] is the official GNU Emacs archive, enabled out of the box for sufficiently new Emacs installations. It is comparatively small, contributing to it requires copyright assignment and cooperating with the official mailing list. It is the closest thing we have to a vetting comparable to a Linux distribution package archive.
-
-[[https://marmalade-repo.org/][Marmalade]] is an unofficial archive with a good amount of versioned packages. Authors and maintainers need to upload their releases manually to it. Vetting is done once for every new member before allowing them to have an user account, after that is done, they are free to release as they wish.
-
-[[https://melpa.org/#/][MELPA]] is another unofficial archive with the largest amount of packages. Each package is briefly vetted for code style with its pull request for inclusion, after that packages are automatically built from their (usually VCS) sources. Rebuilds can happen every hour. There is also MELPA stable which builds tagged releases only, but has a lot less packages, less even than Marmalade.
-
-Each archive will write its files in a separate archive directory. 
+  Each archive will write its files in a separate archive directory. 
 I set secure connection to package repository and because the default setting for package-archives is to use the HTTP access to the GNU archive, I set the variable to `nil` before adding the HTTPS variants.
 
 #+name: credmp-package-infrastructure
@@ -105,7 +162,7 @@ this check and takes care of any loading of the packages.
     (delete-other-windows))
 #+end_src
 
-** Package with dependencies
+**** Package with dependencies
 
 #+name: credmp-package-installer
 #+begin_src emacs-lisp
@@ -125,7 +182,7 @@ this check and takes care of any loading of the packages.
      (init--install-packages)))
 #+end_src
 
-** Diminish modes
+**** Diminish modes
 *TODO: read more about diminish*
 
 #+begin_src emacs-lisp
@@ -133,8 +190,10 @@ this check and takes care of any loading of the packages.
     :ensure t)
 #+end_src
 
+
 * Customizations
 ** UI
+Setup graphic. Font, themes, column displays
 *** Maximize work area
 Disable the menu, tool and scroll bar since they just take up space.
 #+BEGIN_SRC emacs-lisp
@@ -148,19 +207,10 @@ Disable the menu, tool and scroll bar since they just take up space.
       (set-frame-font "Hack-12" nil t)
     #+END_SRC
 *** Column number
-   Show column number in the info bar
+Show column number in the info bar
    #+BEGIN_SRC emacs-lisp
-     (column-number-mode 1)
+      (column-number-mode 1)
    #+END_SRC
-*** Discover-ability
-Pressing command with delay pops up in minibuffer list of commands with descriptions (HOT KEYS)
-#+BEGIN_SRC emacs-lisp
-(use-package which-key
-    :ensure t
-    :diminish which-key-mode
-    :config
-    (which-key-mode))
-#+END_SRC
 ** Behaviour
 *** Default
 Changing the default emacs behavior
@@ -174,6 +224,13 @@ Changing the default emacs behavior
      ;;(indent-tabs-mode nil)           ;; Don't use tab for indenting.
    #+END_SRC
 
+*** Frames
+ Don't open files from the workspace in a new frame
+
+#+name: credmp-trash
+#+begin_src emacs-lisp
+  (setq ns-pop-up-frames nil)
+#+end_src
 *** Scrolling
 #+BEGIN_SRC emacs_lisp
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
@@ -194,23 +251,48 @@ keyboard
    over the place.  Fixing that by dumping all backup/autosave files
    in to one directory.
    #+BEGIN_SRC emacs-lisp
-     (defvar backup-dir (expand-file-name "~/.emacs.d/backup/"))
-     (defvar autosave-dir (expand-file-name "~/.emacs.d/autosave/"))
-     (setq backup-directory-alist (list (cons ".*" backup-dir))
-	   auto-save-list-file-prefix autosave-dir
-	   auto-save-file-name-transforms `((".*" ,autosave-dir t)))
+      (defvar backup-dir (concat init-dir "backups"))
+      (defvar autosave-dir (concat init-dir "autosaves"))
+
+      ;; Check if directories with backups exists, create if not
+      (if (not (file-exists-p backup-dir))
+         (make-directory backup-dir t))
+
+      (if (not (file-exists-p autosave-dir))
+         (make-directory autosave-dir t))
+
+      (setq backup-directory-alist (list (cons ".*" backup-dir))
+	     auto-save-list-file-prefix autosave-dir
+	     auto-save-file-name-transforms `((".*" ,autosave-dir t)))
+
+      (setq make-backup-files t         ; backup of a file the first time it is saved.
+              backup-by-copying t               ; don't clobber symlinks
+              version-control t                 ; version numbers for backup files
+              delete-old-versions t             ; delete excess backup files silently
+              delete-by-moving-to-trash t
+              kept-old-versions 6               ; oldest versions to keep when a new numbered backup is made (default: 2)
+              kept-new-versions 9               ; newest versions to keep when a new numbered backup is made (default: 2)
+              auto-save-default t               ; auto-save every buffer that visits a file
+              auto-save-timeout 20              ; number of seconds idle time before auto-save (default: 30)
+              auto-save-interval 200            ; number of keystrokes between auto-saves (default: 300)
+      )
+
+    (setq delete-by-moving-to-trash t
+          trash-directory "~/.Trash/emacs")
+
    #+END_SRC
 
 ** Theme
 Point emacs to where it can find the themes.
    #+BEGIN_SRC emacs-lisp
-     (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-     (load-theme `arc-dark-theme t)
+     (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/arjen-grey-theme")
+     (load-theme 'arjen-grey t)
    #+END_SRC
+
 * Packages
 ** Emacs
 *** Ivy / Swipper / Councel
-se the counsel and swiper packages to make the use of M-x and search a lot easier.
+Use the counsel and swiper packages to make the use of M-x and search a lot easier.
 
 #+BEGIN_SRC emacs-lisp
   (use-package counsel
@@ -267,3 +349,27 @@ se the counsel and swiper packages to make the use of M-x and search a lot easie
   (use-package ivy-hydra :ensure t)
 #+END_SRC
 
+*** Discover-ability
+Pressing command with delay pops up in minibuffer list of commands with descriptions (HOT KEYS)
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+    :ensure t
+    :diminish which-key-mode
+    :config
+    (which-key-mode))
+#+END_SRC
+
+*** Buffer management (ace-window)
+Easy move between seperate buffers
+#+name: credmp-window
+#+begin_src emacs-lisp
+  (use-package ace-window
+    :ensure t
+    :config
+    (global-set-key (kbd "C-x o") 'ace-window))
+
+  (use-package ace-jump-mode
+    :ensure t
+    :config
+    (define-key global-map (kbd "C-c SPC") 'ace-jump-mode))
+#+end_src
