@@ -4,7 +4,7 @@
 
 Before you clone repo, make sure you have everything described bellow:
 
-1. Install [Hack font]: https://github.com/source-foundry/Hack
+1. Install [Hack font](https://github.com/source-foundry/Hack)
 
 2. configuration has 2 environments:
 
@@ -38,5 +38,5 @@ git clone https://github.com/tuus-amicus/emacs-from-scratch ~/.emacs.d
 
 ```
 
-# TODO
--[] re-write README
+***
+It was tesetd on **mac** and **linux**. 
