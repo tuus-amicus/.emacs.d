@@ -190,7 +190,6 @@ this check and takes care of any loading of the packages.
     :ensure t)
 #+end_src
 
-
 * Customizations
 ** UI
 Setup graphic. Font, themes, column displays
@@ -236,6 +235,32 @@ Changing the default emacs behavior
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
 (setq mouse-wheel-progressive-speed nil)
 #+END_SRC
+*** Desktop
+#+begin_src eslip-lisp
+; Saving history and sessions
+(desktop-save-mode 1)
+(savehist-mode 1)
+#+end_src eslip-lisp
+*** Grep-find
+Open grep-find in current window
+#+begin_src eslip-list
+(eval-when-compile (require 'cl))
+(defun kill-grep-window ()
+  (destructuring-bind (window major-mode)
+      (with-selected-window (next-window (selected-window))
+        (list (selected-window) major-mode))
+    (when (eq major-mode 'grep-mode)
+      (delete-window window))))
+
+(add-hook 'next-error-hook 'kill-grep-window)
+#+end_src
+
+*** Default bash vs zsh
+#+begin_src eslip-lisp
+;; Setup /bin/bash as default bash instead of zsh 
+(setq-default explicit-shell-file-name "/bin/bash")
+#+end_src
+
 ** Mac keys 
 Change command to meta, and ignore option to use weird Norwegian
 keyboard
@@ -261,6 +286,7 @@ keyboard
       (if (not (file-exists-p autosave-dir))
          (make-directory autosave-dir t))
 
+      ;; link backup-dir & autosave-dir 
       (setq backup-directory-alist (list (cons ".*" backup-dir))
 	     auto-save-list-file-prefix autosave-dir
 	     auto-save-file-name-transforms `((".*" ,autosave-dir t)))
@@ -285,8 +311,16 @@ keyboard
 ** Theme
 Point emacs to where it can find the themes.
    #+BEGIN_SRC emacs-lisp
-     (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/arjen-grey-theme")
-     (load-theme 'arjen-grey t)
+     ;;     (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/arjen-grey-theme")
+     ;; Install theme. Use only ' load-theme '
+     (use-package zenburn-theme
+      :ensure t
+     )
+
+     (use-package arjen-grey-theme
+        :ensure t
+        :config
+     (load-theme 'arjen-grey t))
    #+END_SRC
 
 * Packages
@@ -349,6 +383,16 @@ Use the counsel and swiper packages to make the use of M-x and search a lot easi
   (use-package ivy-hydra :ensure t)
 #+END_SRC
 
+*** Avy
+Navigate by searching for a letter on the screen and jumping on it
+ #+BEGIN_SRC emacs-lisp
+      (use-package avy
+        :config
+        (setq avy-all-windows nil)
+        (setq avy-background t)
+        :bind (("M-j" . avy-goto-char))
+        :pin melpa-stable)
+    #+END_SRC
 *** Discover-ability
 Pressing command with delay pops up in minibuffer list of commands with descriptions (HOT KEYS)
 #+BEGIN_SRC emacs-lisp
@@ -373,3 +417,228 @@ Easy move between seperate buffers
     :config
     (define-key global-map (kbd "C-c SPC") 'ace-jump-mode))
 #+end_src
+*** Org
+#+BEGIN_SRC emacs-lisp
+   (eval-after-load "org-indent" '(diminish 'org-indent-mode))
+#+END_SRC
+
+** Programming
+*** Magit (Version Control)
+Magit is the only thing you need when it comes to Version Control (Git)
+
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :ensure t
+    :bind (("C-c m" . magit-status))
+    :pin melpa-stable)
+
+  (use-package magit-gitflow
+    :ensure t
+    :config
+    (add-hook 'magit-mode-hook 'turn-on-magit-gitflow)
+    :pin melpa-stable)
+#+END_SRC
+
+Display the buffer state in the fringe.
+
+#+begin_src emacs-lisp
+  (use-package git-gutter
+    :ensure t
+    :config
+    (global-git-gutter-mode +1))
+#+end_src
+*** AutoComplete
+ Packages that helps speed up coding, i.e. auto complete, boiler plates etc
+**** Autocomplete
+Some people choose Autocomple, some Company. I choose both
+#+begin_src eslip-lisp
+(use-package auto-complete 
+    :ensure t
+    :init
+(progn
+   (ac-config-default)
+      (global-auto-complete-mode t)
+ ))
+#+end_src
+**** Company
+  Configure company to work similar to auto complete. Disabled most
+     backends for c++ when at work as they were either slow, failed to
+     find a completion half the time or flat out crashed clang when
+     trying to complete stuff. The company-dabbrev-code works similar
+     to what I had before with ac.
+
+#+BEGIN_SRC emacs-lisp
+       (use-package company
+                                               ;:disabled t
+         :bind ( ("C-<tab>" . company-complete-common)
+                 :map company-active-map
+                 ("C-n" . company-select-next)
+                 ("C-p" . company-select-previous))
+         :init
+         ;; List what modes to use company in.
+         (add-hook 'after-init-hook 'global-company-mode)
+         :config
+         (setq company-global-modes '(not shell-mode gud-mode)
+               company-idle-delay 0.1
+               company-minimum-prefix-length 3
+               company-clang-insert-arguments nil
+              ; company-dabbrev-downcase nil
+              ; company-dabbrev-ignore-case nil
+               company-dabbrev-other-buffers t
+               company-dabbrev-code-other-buffers t)
+
+         (add-hook 'org-mode-hook
+                   (lambda ()
+                     ;; Remove dabbrev from org-mode as it's driving me crazy!
+                     (set (make-local-variable 'company-backends)
+                          (setq-local company-backends
+                                      (delete 'company-dabbrev company-backends)))
+                     ;; Fixing capf to work with org-mode
+                     ;; https://emacs.stackexchange.com/a/21173
+                     (add-hook 'completion-at-point-functions
+                               'pcomplete-completions-at-point nil t)))
+         (add-hook 'emacs-lisp-mode-hook
+                   (lambda ()
+                     (set (make-local-variable 'company-backends)
+                          '((company-capf
+                             company-dabbrev-code
+                             :separate)))))
+
+         ;; Only reliable backend at work for c-mode TODO: add environment i-am-working
+         ; (when i-am-working
+         (add-hook 'c-mode-common-hook
+                  (lambda ()
+                      (set (make-local-variable 'company-backends)
+                           '(company-dabbrev-code))))
+         ; )
+         :pin melpa-stable)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+       ;; Shell autocomplete
+       (use-package company-shell
+         :disabled t
+         :after (company)
+         :config
+         :pin melpa-stable)
+
+#+END_SRC
+     
+ #+BEGIN_SRC emacs-lisp
+      ;; Python autocomplete
+      (defun my/python-mode-hook ()
+      (add-to-list 'company-backends 'company-jedi))
+      
+      (use-package company-jedi
+      :ensure t
+      :after (company)
+      :config
+      (add-hook 'python-mode-hook 'jedi:setup)
+      )
+      (add-hook 'python-mode-hook 'my/python-mode-hook)
+ #+END_SRC emacs-lisp
+     
+ Tell emacs it's safe to change these company variables in a
+ .dir-locals.el file.
+ #+BEGIN_SRC emacs-lisp
+       (put 'company-clang-executable 'safe-local-variable #'stringp)
+       (put 'company-clang-arguments 'safe-local-variable #'listp)
+ #+END_SRC
+**** Yasnippet
+     Enable yasnippet
+     #+BEGIN_SRC emacs-lisp
+       (use-package yasnippet
+       	 :config
+       	 (yas-global-mode 1)
+       	 (setq yas-indent-line nil)
+       	 :pin melpa-stable)
+     #+END_SRC
+*** Lint
+**** Flycheck
+
+Enable flycheck globably.
+Disable clang check, gcc check works better.
+#+BEGIN_SRC emacs-lisp
+       (use-package flycheck
+         :config
+         (add-hook 'after-init-hook #'global-flycheck-mode)
+         ;; Current version of rst-sphinx for flycheck disabling it
+         (add-to-list 'auto-mode-alist '("\\.rst\\'" .
+                                         (lambda () (rst-mode) (flycheck-mode -1))))
+         :pin melpa-stable)
+
+#+END_SRC
+** Programming languages
+*** Python
+#+BEGIN_SRC emacs-lisp
+;; Setup python3 as default
+(setq py-python-command "python3")
+(setq python-shell-interpreter "python3")
+
+(use-package elpy
+    :ensure t
+    :config 
+    (elpy-enable))
+
+;; Add virtualenv support TODO: Make virtualenv, as described in .zshrc file
+(use-package virtualenvwrapper
+  :ensure t
+  :config
+  (venv-initialize-interactive-shells)
+  (venv-initialize-eshell))
+#+END_SRC emacs-lisp
+*** Lisp 
+Color haxvalues with their respective color.
+    #+BEGIN_SRC emacs-lisp
+      (use-package lisp-mode
+        :ensure nil ; Built in
+        :config
+        (defvar hexcolour-keywords
+          '(("#[[:xdigit:]]\\{6\\}"
+             (0 (put-text-property (match-beginning 0)
+                                   (match-end 0)
+                                   'face (list :background
+                                               (match-string-no-properties 0)))))))
+        (add-hook 'lisp-mode-hook
+                  (lambda ()
+                    (setq show-trailing-whitespace t)
+                    (font-lock-add-keywords nil hexcolour-keywords))))
+    #+END_SRC
+
+** DevOps
+*** Docker
+** Texts
+*** Markdown
+    #+BEGIN_SRC emacs-lisp
+      (use-package markdown-mode
+       	:pin melpa-stable)
+    #+END_SRC
+
+** Misc
+*** Multiple cursors
+(use-package multiple-cursors
+  :ensure t)
+* Key bindings
+** Buffer updating
+#+begin_src eslip-lisp
+(global-set-key (kbd "<f5>") 'revert-buffer)
+#+end_src
+* COMMENT Custom (disabled)
+Load custom plugins/fucntions from folder depends on environment
+#+BEGIN_SRC emacs-lisp
+   (use-package work
+      :disabled t
+      :if i-am-working
+      :ensure nil
+      :load-path "~/.emacs.d/plugins")
+#+END_SRC
+* TODO
+- Add environment Macbook to load plugins for macbook (load-path ('.../macbook.el') or so)
+- Setup correct PATH (watch templates + init.origin.org)
+- Add icons (like in sublime folders)
+- Auto completition and highlight text in files
+- Python support (highlight & autocomplete)
+- Move from init.origin to current
+- Setup org with visualization miscs
+- MAKE TODO: (search by file)
+  
