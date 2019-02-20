@@ -638,7 +638,10 @@ Load custom plugins/fucntions from folder depends on environment
       :load-path "~/.emacs.d/plugins")
 #+END_SRC
 * TODO
+- Why Identation is not working in org
+- Add autospelling in .org files
 - Add Saving desktop and history sessions. With saving themes
+- Add adding workspaces (to quickly go to project)
 - Add environment Macbook to load plugins for macbook (load-path ('.../macbook.el') or so)
 - Setup correct PATH (watch templates + init.origin.org)
 - Add icons (like in sublime folders)
