@@ -36,7 +36,7 @@ First of all, [[https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#P
              ("melpa"        . "https://melpa.org/packages/")
              ("gnu"          . "https://elpa.gnu.org/packages/")
              ("org"          . "https://orgmode.org/elpa/")))
-
+             
      (package-initialize)
 
      (when (not package-archive-contents)
@@ -239,7 +239,7 @@ Changing the default emacs behavior
 #+BEGIN_SRC emacs-lisp
 ;; Saving history and sessions
 ;; Somewhy enabling that options disable theme, fonts, etc.
-;(desktop-save-mode 1)
+(desktop-save-mode 1)
 (savehist-mode 1)
 #+END_SRC
 
@@ -257,11 +257,11 @@ Open grep-find in current window
 (add-hook 'next-error-hook 'kill-grep-window)
 #+end_src
 
-*** Default bash vs zsh
+*** COMMENT Default bash vs zsh
 #+begin_src emacs-lisp
-;; Setup /bin/bash as default bash instead of zsh
-;; Disabling it. Otherwise we lost aliases and paths from zsh
-;(setq-default explicit-shell-file-name "/bin/bash")
+  ;; Setup /bin/bash as default bash instead of zsh
+  ;; Disabling it. Otherwise we lost aliases and paths from zsh
+  ;(setq-default explicit-shell-file-name "/bin/bash")
 #+end_src
 
 ** Mac keys 
@@ -539,7 +539,7 @@ Some people choose Autocomple, some Company. I choose both
       (add-hook 'python-mode-hook 'jedi:setup)
       )
       (add-hook 'python-mode-hook 'my/python-mode-hook)
- #+END_SRC emacs-lisp
+ #+END_SRC 
      
  Tell emacs it's safe to change these company variables in a
  .dir-locals.el file.
@@ -589,7 +589,7 @@ Disable clang check, gcc check works better.
   :config
   (venv-initialize-interactive-shells)
   (venv-initialize-eshell))
-#+END_SRC emacs-lisp
+#+END_SRC
 *** Lisp 
 Color haxvalues with their respective color.
     #+BEGIN_SRC emacs-lisp
