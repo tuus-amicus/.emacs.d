@@ -25,7 +25,7 @@ Before you clone repo, make sure you have everything described bellow:
 
 # Installation
 
-0. Go to step # Before you go
+0. Go to step [Before you go](#before-you-go)
 
 1. Backup your current .emacs.d folder (don't trust me)
 
