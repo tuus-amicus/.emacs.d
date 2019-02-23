@@ -111,6 +111,72 @@
       (delete-window window))))
 
 (add-hook 'next-error-hook 'kill-grep-window)
+;;; ====FOR MAC ONLY=====
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize)
+  ;; set PATH FROM SHELL to emacs (For mac only)
+  (setenv "PATH" (concat (getenv "PATH") ":" "/usr/local/bin/virtualenv"))
+  (add-to-list 'exec-path "/usr/local/bin/virtualenv")
+  
+  (defun set-exec-path-from-shell-PATH ()
+    (let ((path-from-shell (shell-command-to-string "$SHELL -c 'echo $PATH'")))
+      (setenv "PATH" path-from-shell)
+      (setq exec-path (split-string path-from-shell path-separator))))
+  (when window-system (set-exec-path-from-shell-PATH)))
+
+;;; ====IDO===
+;;  ido for files and buffers manipulating with {} for example
+(require 'ido)
+(ido-mode t)
+;; ===JEDI,PYTHONMODE==
+; hooks for python mode -> enable auto complete,
+; jedi:setup and jedi:complete-on-dot
+(add-hook 'python-mode-hook 'auto-complete-mode)
+(add-hook 'python-mode-hook 'jedi:setup)
+(setq jedi:complete-on-dot t)
+
+
+;; ==IPYTHON==
+;set ipython as default py-shell
+(setq-default py-shell-name "ipython")
+(setq-default py-which-bufname "IPython")
+
+;; ===IMENU===
+;  imenu to navigate through function definitions
+(require 'imenu)
+(setq imenu-auto-rescan  t) ;; automaticaly refresh list of functions in buffer
+(setq imenu-use-popup-menu nil) ;; dialogs Imenu only in minibuffer
+(global-set-key (kbd "<f4>") 'imenu) ;; вызов Imenu на F6
+
+
+;; ====BS-SHOW===
+;; Fast navigation between buffers
+;; Buffer Selection and ibuffer settings
+(require 'bs)
+(require 'ibuffer)
+(defalias 'list-buffers 'ibuffer) ;; отдельный список буферов при нажатии C-x C-b
+
+;; ==== HOTKEYS ===
+(global-set-key (kbd "<f8>") 'nav-toggle) ;; navigation F8 -> directory navigations
+(global-set-key (kbd "<f9>") 'bs-show) ;; запуск buffer selection кнопкой F2
+
+(global-unset-key (kbd "C-/")) ; Unset C-/ (undo) and 
+(global-set-key (kbd "C-/") 'comment-or-uncomment-region) ; set to comment-regione
+
+;; Multiple cursors
+;;;When you have an active region that spans multiple lines, the following will add a cursor to each line:
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines) 
+
+;;; When you want to add multiple cursors not based on continuous lines, but based on keywords in the buffer, use:s
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+;; First mark the word, then add more cursors.
+;;To get out of multiple-cursors-mode, press <return> or C-g. The latter will first disable multiple regions before disabling multiple cursors. If you want to insert a newline in multiple-cursors-mode, use C-j.
+
+;; Bind mouse click
+(global-set-key (kbd "C-S-<mouse-1>") 'mc/add-cursor-on-click)
+
 * TODO
 
 ;;; Список пакетов, которые будут установлены через el-get
@@ -162,58 +228,6 @@
 ;;; ====================SETTINGS====================
 
 
-;;; ====FOR MAC ONLY=====
-(when (memq window-system '(mac ns))
-  (exec-path-from-shell-initialize)
-  ;; set PATH FROM SHELL to emacs (For mac only)
-  (setenv "PATH" (concat (getenv "PATH") ":" "/usr/local/bin/virtualenv"))
-  (add-to-list 'exec-path "/usr/local/bin/virtualenv")
-  
-  (defun set-exec-path-from-shell-PATH ()
-    (let ((path-from-shell (shell-command-to-string "$SHELL -c 'echo $PATH'")))
-      (setenv "PATH" path-from-shell)
-      (setq exec-path (split-string path-from-shell path-separator))))
-  (when window-system (set-exec-path-from-shell-PATH)))
-
-;;; ====IDO===
-;;  ido for files and buffers manipulating with {} for example
-(require 'ido)
-(ido-mode t)
-
-;; ===JEDI,PYTHONMODE==
-; hooks for python mode -> enable auto complete,
-; jedi:setup and jedi:complete-on-dot
-(add-hook 'python-mode-hook 'auto-complete-mode)
-(add-hook 'python-mode-hook 'jedi:setup)
-(setq jedi:complete-on-dot t)
-
-
-;; ==IPYTHON==
-;set ipython as default py-shell
-(setq-default py-shell-name "ipython")
-(setq-default py-which-bufname "IPython")
-
-
-
-
-
-
-;; ===IMENU===
-;  imenu to navigate through function definitions
-(require 'imenu)
-(setq imenu-auto-rescan  t) ;; automaticaly refresh list of functions in buffer
-(setq imenu-use-popup-menu nil) ;; dialogs Imenu only in minibuffer
-(global-set-key (kbd "<f4>") 'imenu) ;; вызов Imenu на F6
-
-
-;; ====BS-SHOW===
-;; Fast navigation between buffers
-;; Buffer Selection and ibuffer settings
-(require 'bs)
-(require 'ibuffer)
-(defalias 'list-buffers 'ibuffer) ;; отдельный список буферов при нажатии C-x C-b
-
-
 ;; ====CEDET, for C+++====
 ;; CEDET settings for C/C++/Java codding
 (require 'cedet) ;; использую "вшитую" версию CEDET. Мне хватает...
@@ -234,27 +248,6 @@
 (nav-disable-overeager-window-splitting)
 
 
-;; ==== HOTKEYS ===
-(global-set-key (kbd "<f8>") 'nav-toggle) ;; navigation F8 -> directory navigations
-(global-set-key (kbd "<f9>") 'bs-show) ;; запуск buffer selection кнопкой F2
-
-(global-unset-key (kbd "C-/")) ; Unset C-/ (undo) and 
-(global-set-key (kbd "C-/") 'comment-or-uncomment-region) ; set to comment-regione
-
-;; Multiple cursors
-
-;;;When you have an active region that spans multiple lines, the following will add a cursor to each line:
-(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines) 
-
-;;; When you want to add multiple cursors not based on continuous lines, but based on keywords in the buffer, use:s
-(global-set-key (kbd "C->") 'mc/mark-next-like-this)
-(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
-;; First mark the word, then add more cursors.
-;;To get out of multiple-cursors-mode, press <return> or C-g. The latter will first disable multiple regions before disabling multiple cursors. If you want to insert a newline in multiple-cursors-mode, use C-j.
-;; Bind mouse click
-(global-set-key (kbd "C-S-<mouse-1>") 'mc/add-cursor-on-click)
-
 ;; ==== C++ custom-style ====
 ; style I want to use in c++ mode
 (c-add-style "dee-style" 
@@ -273,37 +266,5 @@
   (auto-fill-mode))
 (add-hook 'c++-mode-hook 'my-c++-mode-hook)
 ;  (c-toggle-auto-hungry-state 1)) ; On new line, while put braces
-
-
 ;;
 
-;; ====================BIN==================== ;;
-
-;; ==== TABS instead of Spaces ====
-;(global-set-key (kbd "TAB") 'self-insert-command)
-
-;; === SETUP ===
-;(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp"))
-;(load "package")
-;(require 'package)
-;(package-initialize)
-;(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-;			 ("marmalade" . "http://marmalade-repo.org/packages/")
-;			 ("melpa" . "http://melpa.org/packages/")))
-
-;;; el-get packager for installing packages
-;; From documentation that part
-;(add-to-list 'load-path "~/.emacs.d/el-get/el-get")
-;(unless (require 'el-get nil 'noerror)
-;  (with-current-buffer
-;      (url-retrieve-synchronously
-;       "https://raw.github.com/dimitri/el-get/master/el-get-install.el")
-;    (let (el-get-master-branch)
-;      (goto-char (point-max))
-;      (eval-print-last-sexp))))
-;(el-get 'sync)
-
-; (defun toggle-comment-on-line ()
-;  "comment or uncomment current line"
-;  (interactive)
-;  (comment-or-uncomment-region (line-beginning-position) (line-end-position)))

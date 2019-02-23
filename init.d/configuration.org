@@ -211,6 +211,24 @@ Show column number in the info bar
       (column-number-mode 1)
    #+END_SRC
 ** Behaviour
+*** Paths / Environment
+#+BEGIN_SRC emacs-lisp
+  (when (memq window-system '(mac ns))
+    (use-package exec-path-from-shell
+        :ensure t
+    )
+    (exec-path-from-shell-initialize)
+    ;; set PATH FROM SHELL to emacs (For mac only)
+    ;(setenv "PATH" (concat (getenv "PATH") ":" "/usr/local/bin/virtualenv"))
+    (add-to-list 'exec-path "/usr/local/bin/virtualenv"))
+  
+    ;; (defun set-exec-path-from-shell-PATH ()
+    ;;   (let ((path-from-shell (shell-command-to-string "$SHELL -c 'echo $PATH'")))
+    ;;     (setenv "PATH" path-from-shell)
+    ;;     (setq exec-path (split-string path-from-shell path-separator))))
+    ;; (when window-system (set-exec-path-from-shell-PATH)))
+#+END_SRC
+
 *** Default
 Changing the default emacs behavior
    #+BEGIN_SRC emacs-lisp
@@ -225,7 +243,6 @@ Changing the default emacs behavior
 
 *** Frames
  Don't open files from the workspace in a new frame
-
 #+name: credmp-trash
 #+begin_src emacs-lisp
   (setq ns-pop-up-frames nil)
@@ -264,7 +281,11 @@ Open grep-find in current window
   ;(setq-default explicit-shell-file-name "/bin/bash")
 #+end_src
 
-** Mac keys 
+*** Yes / No (y/n)
+#+BEGIN_SRC emacs-lisp
+(fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+*** Mac keys 
 Change command to meta, and ignore option to use weird Norwegian
 keyboard
 
@@ -328,6 +349,12 @@ Point emacs to where it can find the themes.
 
 * Packages
 ** Emacs
+*** Winner mode 
+Resumes closed windows
+#+BEGIN_SRC emacs-lisp
+(when (fboundp 'winner-mode)
+      (winner-mode 1))
+#+END_SRC
 *** Ivy / Swipper / Councel
 Use the counsel and swiper packages to make the use of M-x and search a lot easier.
 
@@ -378,6 +405,8 @@ Use the counsel and swiper packages to make the use of M-x and search a lot easi
           ivy--switch-buffer-other-window-action
           "other window")))))
 
+  (use-package ag :ensure t) ;; for counsel-ag
+  
   (use-package counsel-projectile
     :ensure t
     :config
@@ -386,6 +415,18 @@ Use the counsel and swiper packages to make the use of M-x and search a lot easi
   (use-package ivy-hydra :ensure t)
 #+END_SRC
 
+*** Imenu
+;;  imenu to navigate through function definitions
+;; Maybe swipper or councel is analog of that command
+#+BEGIN_SRC emacs-lisp
+(use-package imenu
+    :bind (("<F4>" . imenu)) ;; Вызов imenu по F4
+    :ensure t
+    :config
+    (setq imenu-auto-rescan  t) ;; automaticaly refresh list of functions in buffer
+    (setq imenu-use-popup-menu nil) ;; dialogs Imenu only in minibuffer
+)
+#+END_SRC
 *** Avy
 Navigate by searching for a letter on the screen and jumping on it
  #+BEGIN_SRC emacs-lisp
@@ -412,14 +453,136 @@ Easy move between seperate buffers
 #+begin_src emacs-lisp
   (use-package ace-window
     :ensure t
+    :defer 1
     :config
-    (global-set-key (kbd "C-x o") 'ace-window))
+    (global-set-key (kbd "C-x o") 'ace-window)
+    (set-face-attribute
+     'aw-leading-char-face nil
+     :foreground "deep sky blue"
+     :weight 'bold
+     :height 3.0)
+    (set-face-attribute
+     'aw-mode-line-face nil
+     :inherit 'mode-line-buffer-id
+     :foreground "lawn green")
+    (setq aw-dispatch-always t
+          aw-dispatch-alist
+          '((?x aw-delete-window "Ace - Delete Window")
+            (?c aw-swap-window "Ace - Swap Window")
+            (?n aw-flip-window)
+            (?v aw-split-window-vert "Ace - Split Vert Window")
+            (?h aw-split-window-horz "Ace - Split Horz Window")
+            (?m delete-other-windows "Ace - Maximize Window")
+            (?g delete-other-windows)
+            (?b balance-windows)
+            (?u (lambda ()
+                  (progn
+                    (winner-undo) ;; Undo closed windows
+                    (setq this-command 'winner-undo))))
+            (?r winner-redo)
+            (?? aw-show-dispatch-help "Show-dispatch-help")))
+
+    ;; Hydra config. 
+    (when (package-installed-p 'hydra)
+      (defhydra hydra-window-size (:color red)
+        "Windows size"
+        ("h" shrink-window-horizontally "shrink horizontal")
+        ("j" shrink-window "shrink vertical")
+        ("k" enlarge-window "enlarge vertical")
+        ("l" enlarge-window-horizontally "enlarge horizontal"))
+     (add-to-list 'aw-dispatch-alist '(?w hydra-window-size/body) t))) ;; Link 'aw-dispatch-alist with ?w hotkey on hydra-window-size/body command
 
   (use-package ace-jump-mode
     :ensure t
     :config
     (define-key global-map (kbd "C-c SPC") 'ace-jump-mode))
 #+end_src
+*** Hydra
+This is a package for GNU Emacs that can be used to tie related commands into a family of short bindings with a common prefix - a Hydra.
+Imagine that you have bound C-c j and C-c k in your config. You want to call C-c j and C-c k in some (arbitrary) sequence. Hydra allows you to:
+
+Bind your functions in a way that pressing C-c jjkk3j5k is equivalent to pressing C-c j C-c j C-c k C-c k M-3 C-c j M-5 C-c k. Any key other than j or k exits this state.
+
+Assign a custom hint to this group of functions, so that you know immediately after pressing C-c that you can follow up with j or k.
+[[https://github.com/abo-abo/hydra][More here]]
+
+#+BEGIN_SRC emacs-lisp
+    (use-package hydra 
+      :ensure hydra
+      :init 
+   
+     ;; Toogle visual modes
+      (global-set-key
+      (kbd "C-x t")
+          (defhydra toggle (:color blue)
+            "toggle"
+            ("a" abbrev-mode "abbrev")
+            ("s" flyspell-mode "flyspell")
+            ("d" toggle-debug-on-error "debug")
+            ("c" fci-mode "fCi")
+            ("f" auto-fill-mode "fill")
+            ("t" toggle-truncate-lines "truncate")
+            ("w" whitespace-mode "whitespace")
+            ("q" nil "cancel")))
+
+      ;; GotoLine
+      (global-set-key
+       (kbd "C-x j")
+       (defhydra gotoline 
+         ( :pre (linum-mode 1)
+            :post (linum-mode -1))
+         "goto"
+         ("t" (lambda () (interactive)(move-to-window-line-top-bottom 0)) "top")
+         ("b" (lambda () (interactive)(move-to-window-line-top-bottom -1)) "bottom")
+         ("m" (lambda () (interactive)(move-to-window-line-top-bottom)) "middle")
+         ("e" (lambda () (interactive)(end-of-buffer)) "end")
+         ("c" recenter-top-bottom "recenter")
+         ("n" next-line "down")
+         ("p" (lambda () (interactive) (forward-line -1))  "up")
+         ("g" goto-line "goto-line")
+         ))
+
+      ;; Org-mode
+      ;; (global-set-key
+      ;;  (kbd "C0:00:00 -c t")
+      ;;  (defhydra hydra-global-org (:color blue)
+      ;;    "Org"
+      ;;    ("t" org-timer-start "Start Timer")
+      ;;    ("s" org-timer-stop "Stop Timer")
+      ;;    ("r" org-timer-set-timer "Set Timer") ; This one requires you be in an orgmode doc, as it sets the timer for the header
+      ;;    ("p" org-timer "Print Timer") ; output timer value to buffer
+      ;;    ("w" (org-clock-in '(4)) "Clock-In") ; used with (org-clock-persistence-insinuate) (setq org-clock-persist t)
+      ;;    ("o" org-clock-out "Clock-Out") ; you might also want (setq org-log-note-clock-out t)
+      ;;    ("j" org-clock-goto "Clock Goto") ; global visit the clocked task
+      ;;    ("c" org-capture "Capture") ; Don't forget to define the captures you want http://orgmode.org/manual/Capture.html
+      ;;      ("l" (or )rg-capture-goto-last-stored "Last Capture"))))
+      ) ;; use-package hydra
+       ;; Multiple-cursors
+  (defhydra multiple-cursors-hydra (:hint nil)
+    "
+       ^Up^            ^Down^        ^Other^
+  ----------------------------------------------
+  [_p_]   Next    [_n_]   Next    [_l_] Edit lines
+  [_P_]   Skip    [_N_]   Skip    [_a_] Mark all
+  [_M-p_] Unmark  [_M-n_] Unmark  [_r_] Mark by regexp
+  ^ ^             ^ ^             [_q_] Quit
+  "
+    ("l" mc/edit-lines :exit t)
+    ("a" mc/mark-all-like-this :exit t)
+    ("n" mc/mark-next-like-this)
+    ("N" mc/skip-to-next-like-this)
+    ("M-n" mc/unmark-next-like-this)
+    ("p" mc/mark-previous-like-this)
+    ("P" mc/skip-to-previous-like-this)
+    ("M-p" mc/unmark-previous-like-this)
+    ("r" mc/mark-all-in-region-regexp :exit t)
+    ("q" nil)
+
+    ("<mouse-1>" mc/add-cursor-on-click)
+    ("<down-mouse-1>" ignore)
+    ("<drag-mouse-1>" ignore))
+
+#+END_SRC
 *** Org
 #+BEGIN_SRC emacs-lisp
    (eval-after-load "org-indent" '(diminish 'org-indent-mode))
@@ -492,14 +655,16 @@ Some people choose Autocomple, some Company. I choose both
 
          (add-hook 'org-mode-hook
                    (lambda ()
-                     ;; Remove dabbrev from org-mode as it's driving me crazy!
-                     (set (make-local-variable 'company-backends)
-                          (setq-local company-backends
-                                      (delete 'company-dabbrev company-backends)))
+                     ;; Remove dabbrev from org-mode as it's driving me crazy! (not me, exactly)
+                     ;(set (make-local-variable 'company-backends)
+                     ;     (setq-local company-backends
+                     ;                 (delete 'company-dabbrev company-backends)))
+
                      ;; Fixing capf to work with org-mode
                      ;; https://emacs.stackexchange.com/a/21173
                      (add-hook 'completion-at-point-functions
                                'pcomplete-completions-at-point nil t)))
+
          (add-hook 'emacs-lisp-mode-hook
                    (lambda ()
                      (set (make-local-variable 'company-backends)
@@ -528,17 +693,17 @@ Some people choose Autocomple, some Company. I choose both
 #+END_SRC
      
  #+BEGIN_SRC emacs-lisp
-      ;; Python autocomplete
-      (defun my/python-mode-hook ()
-      (add-to-list 'company-backends 'company-jedi))
+ ;; Python autocomplete
+ (defun my/python-mode-hook ()
+ (add-to-list 'company-backends 'company-jedi))
       
-      (use-package company-jedi
-      :ensure t
-      :after (company)
-      :config
-      (add-hook 'python-mode-hook 'jedi:setup)
-      )
-      (add-hook 'python-mode-hook 'my/python-mode-hook)
+ (use-package company-jedi
+   :ensure t
+   :after (company)
+   :config
+   (add-hook 'python-mode-hook 'jedi:setup)
+   )
+ (add-hook 'python-mode-hook 'my/python-mode-hook)
  #+END_SRC 
      
  Tell emacs it's safe to change these company variables in a
@@ -571,6 +736,128 @@ Disable clang check, gcc check works better.
          :pin melpa-stable)
 
 #+END_SRC
+** Web
+*** Web mode
+
+The web-mode is particularly good for editing HTML and Javascript files.
+
+#+name: credmp-package-web
+#+begin_src emacs-lisp
+(use-package web-mode
+    :ensure t
+    :config
+    ;; Files extensions to enable web-mode
+    (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.jsp\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.xhtml?\\'" . web-mode))
+
+    (defun my-web-mode-hook ()
+      "Hooks for Web mode."
+      (setq web-mode-enable-auto-closing t)
+      (setq web-mode-enable-auto-quoting t)
+      (setq web-mode-markup-indent-offset 2))
+
+      (setq web-mode-ac-sources-alist
+      '(("css" . (ac-source-css-property))
+      ("vue" . (ac-source-words-in-buffer ac-source-abbrev))
+      ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
+
+      (setq web-mode-engines-alist
+      '(("django"    . "\\.html\\'")))
+
+    (add-hook 'web-mode-hook  'my-web-mode-hook)
+    :pin melpa-stable)
+
+    (use-package less-css-mode
+    :ensure t)
+#+end_src
+*** Emmet-mode
+Includes an entirely new angle to writing markup, and it facilitates the feature by letting you write HTML based on CSS selectors. It’s so simple it’s confusing at first. I think it’s best explained by doing a quick before and after. If you were to type:
+
+**div#name.one.two**
+and follow that with the zen-coding plugin keystroke (CMD+E in TextMate), the plugin will reformat the line as:
+
+**<div id="name" class="one two"></div>**
+#+BEGIN_SRC emacs-lisp
+  (use-package emmet-mode
+    :ensure t
+    :config
+    (add-hook 'clojure-mode-hook 'emmet-mode)
+    (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+    (add-hook 'web-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+    (add-hook 'css-mode-hook  'emmet-mode)) ;; enable Emmet's css abbreviation.
+#+END_SRC
+*** JavaScript
+#+BEGIN_SRC emacs-lisp
+(use-package js2-mode
+:ensure t
+:ensure ac-js2
+:init
+(progn
+(add-hook 'js-mode-hook 'js2-minor-mode)
+(add-hook 'js2-mode-hook 'ac-js2-mode)
+))
+
+(use-package js2-refactor
+:ensure t
+:config 
+(progn
+(js2r-add-keybindings-with-prefix "C-c C-m")
+;; eg. extract function with `C-c C-m ef`.
+(add-hook 'js2-mode-hook #'js2-refactor-mode)))
+(use-package tern
+:ensure tern
+:ensure tern-auto-complete
+:config
+(progn
+(add-hook 'js-mode-hook (lambda () (tern-mode t)))
+(add-hook 'js2-mode-hook (lambda () (tern-mode t)))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+;;(tern-ac-setup)
+))
+
+;;(use-package jade
+;;:ensure t
+;;)
+
+;; use web-mode for .jsx files
+(add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
+
+
+;; turn on flychecking globally
+(add-hook 'after-init-hook #'global-flycheck-mode)
+
+;; disable jshint since we prefer eslint checking
+(setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers
+    '(javascript-jshint)))
+
+;; use eslint with web-mode for jsx files
+(flycheck-add-mode 'javascript-eslint 'web-mode)
+
+;; customize flycheck temp file prefix
+(setq-default flycheck-temp-prefix ".flycheck")
+
+;; disable json-jsonlist checking for json files
+(setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers
+    '(json-jsonlist)))
+
+;; adjust indents for web-mode to 2 spaces
+(defun my-web-mode-hook ()
+  "Hooks for Web mode. Adjust indents"
+  ;;; http://web-mode.org/
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-code-indent-offset 2))
+(add-hook 'web-mode-hook  'my-web-mode-hook)
+#+END_SRC 
 ** Programming languages
 *** Python
 #+BEGIN_SRC emacs-lisp
@@ -590,6 +877,80 @@ Disable clang check, gcc check works better.
   (venv-initialize-interactive-shells)
   (venv-initialize-eshell))
 #+END_SRC
+*** Go
+Go code helpers. [[https://tleyden.github.io/blog/2014/05/22/configure-emacs-as-a-go-editor-from-scratch/][see also]]
+
+#+begin_src shell :tangle no
+go get -u github.com/nsf/gocode
+go get -u github.com/rogpeppe/godef
+go get -u golang.org/x/tools/cmd/guru
+go get -u golang.org/x/tools/cmd/goimports
+#+end_src
+
+Completion
+#+begin_src emacs-lisp
+
+  (use-package company-go
+    :ensure t
+    :config
+    (setq company-tooltip-limit 20)                      ; bigger popup window
+    (setq company-idle-delay .3)                         ; decrease delay before autocompletion popup shows
+    (setq company-echo-delay 0)                          ; remove annoying blinking
+    (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
+    (add-hook 'go-mode-hook (lambda ()
+                              (set (make-local-variable 'company-backends) '(company-go))
+                              (company-mode))))
+#+end_src
+
+Go uses tabs, so lets set the indent to a sane mode
+
+#+begin_src emacs-lisp
+(setq-default tab-width 4)
+#+end_src
+
+Packages that you need for a nice Go setup
+
+#+begin_src emacs-lisp
+  (use-package go-mode
+    :ensure t
+    :bind (("C-c t t" . go-test-current-test)
+           ("C-c t p" . go-test-current-project)
+           ("C-c t c" . go-test-current-coverage)
+           ("C-c t f" . go-test-current-file))
+    :config
+    (setq gofmt-command "goimports")
+    (add-hook 'before-save-hook 'gofmt-before-save))
+
+  (use-package go-guru
+    :ensure t)
+
+  (use-package go-errcheck
+    :ensure t)
+
+  ;; Yasnippets
+  (use-package go-snippets
+    :ensure t)
+
+  ;; eldoc integration
+  (use-package go-eldoc
+    :ensure t)
+
+  ;; (use-package gocode
+  ;;   :ensure t)
+
+  ;; (use-package godef
+  ;;   :ensure t)
+
+  (use-package gotest
+    :ensure t)
+
+  (use-package flycheck-gometalinter
+    :ensure t
+    :config
+    (progn
+      (flycheck-gometalinter-setup)))
+#+end_src
+
 *** Lisp 
 Color haxvalues with their respective color.
     #+BEGIN_SRC emacs-lisp
@@ -612,35 +973,84 @@ Color haxvalues with their respective color.
 *** Docker
 ** Texts
 *** Markdown
+
     #+BEGIN_SRC emacs-lisp
       (use-package markdown-mode
        	:pin melpa-stable)
     #+END_SRC
 
-** Misc
-*** Multiple cursors
-#+begin_src emacs-lisp
+*** Multi-cursors
+Keybindings for the mc package
+#+BEGIN_SRC emacs-lisp
 (use-package multiple-cursors
-:ensure t)
-#+end_src
+    ;;;When you have an active region that spans multiple lines, the following will add a cursor to each line:
+    :bind (("C-S-c C-S-c" . mc/edit-lines)
+    ;;; When you want to add multiple cursors not based on continuous lines, but based on keywords in the buffer, use:s
+    ("C->"         . mc/mark-next-like-this)
+    ("C-<"         . mc/mark-previous-like-this)
+    ("C-c C-<"     . mc/mark-all-like-this)
+    ("C-+"         . mc/mark-next-like-this)
+    ;; First mark the word, then add more cursors.
+    ;;To get out of multiple-cursors-mode, press <return> or C-g. The latter will first disable multiple regions before disabling multiple cursors. If you want to insert a newline in multiple-cursors-mode, use C-j.
+    ("C-S-<mouse-1>" . mc/add-cursor-on-click)
+    :map mc/keymap
+    ("C-c m n"     . mc/insert-numbers)
+    ("C-c m c"     . mc/insert-characters)
+    ("C-c m s n"   . mc/insert-same-numbers-per-line)
+    ("C-c m s c"   . mc/insert-same-chars-per-line))
+    :config
+    :pin melpa-stable)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+      (use-package mc-extras
+        :after (multiple-cursors)
+        :pin melpa-stable)
+#+END_SRC
 * Key bindings
 ** Buffer updating
 #+begin_src emacs-lisp
 (global-set-key (kbd "<f5>") 'revert-buffer)
 #+end_src
-* COMMENT Custom (disabled)
+* Custom
+** Indent whole buffer
+#+BEGIN_SRC emacs-lisp
+  (defun iwb ()
+    "indent whole buffer"
+    (interactive)
+    (delete-trailing-whitespace)
+    (indent-region (point-min) (point-max) nil)
+    (untabify (point-min) (point-max)))
+
+  (global-set-key (kbd "C-M-:") 'iwb)
+#+END_SRC
+
+** COMMENT Ring-bell
+Disables sound from ring bell (on mac: 'bing'bing'bing')
+#+BEGIN_SRC emacs-lisp
+  ;; http://stackoverflow.com/questions/11679700/emacs-disable-beep-when-trying-to-move-beyond-the-end-of-the-document
+  (defun my-bell-function ())
+
+  (setq ring-bell-function 'my-bell-function)
+  (setq visible-bell nil)
+#+END_SRC
+
+** COMMENT Plugins (disabled)
 Load custom plugins/fucntions from folder depends on environment
 #+BEGIN_SRC emacs-lisp
-   (use-package work
-      :disabled t
-      :if i-am-working
-      :ensure nil
-      :load-path "~/.emacs.d/plugins")
+  ;; (use-package work
+  ;;    :disabled t
+  ;;    :if i-am-working
+  ;;    :ensure nil
+  ;;    :load-path "~/.emacs.d/plugins")
 #+END_SRC
 * TODO
-- Why Identation is not working in org
-- Add autospelling in .org files
-- Add Saving desktop and history sessions. With saving themes
+** Linux
+- Add Saving desktop and history sessions. With saving themes (almost done)
+** All OS
+- Show git changes always even after exit from emacs (via + -)
+- Setup window management Hydra+ace-window [[https://github.com/abo-abo/hydra/wiki/Window-Management][Like this]]
+- Add some usefull Hydra hotkeys (like gotoline)
 - Add adding workspaces (to quickly go to project)
 - Add environment Macbook to load plugins for macbook (load-path ('.../macbook.el') or so)
 - Setup correct PATH (watch templates + init.origin.org)
