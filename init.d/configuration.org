@@ -183,8 +183,6 @@ this check and takes care of any loading of the packages.
 #+end_src
 
 **** Diminish modes
-*TODO: read more about diminish*
-
 #+begin_src emacs-lisp
   (use-package diminish
     :ensure t)
@@ -480,7 +478,8 @@ Easy move between seperate buffers
                     (winner-undo) ;; Undo closed windows
                     (setq this-command 'winner-undo))))
             (?r winner-redo)
-            (?? aw-show-dispatch-help "Show-dispatch-help")))
+      ;      (?? aw-show-dispatch-help "Show-dispatch-help")
+            )) ;; setq and aw-dispatch
 
     ;; Hydra config. 
     (when (package-installed-p 'hydra)
@@ -672,7 +671,7 @@ Some people choose Autocomple, some Company. I choose both
                              company-dabbrev-code
                              :separate)))))
 
-         ;; Only reliable backend at work for c-mode TODO: add environment i-am-working
+         ;; Only reliable backend at work for c-mode         ;; environment
          ; (when i-am-working
          (add-hook 'c-mode-common-hook
                   (lambda ()
@@ -721,6 +720,12 @@ Some people choose Autocomple, some Company. I choose both
        	 (setq yas-indent-line nil)
        	 :pin melpa-stable)
      #+END_SRC
+*** Indent all (Format)
+Formatting all by command. Tries to expect what file is and indenting it
+#+BEGIN_SRC emacs-lisp
+(use-package format-all :ensure t)
+#+END_SRC
+
 *** Lint
 **** Flycheck
 
@@ -870,7 +875,7 @@ and follow that with the zen-coding plugin keystroke (CMD+E in TextMate), the pl
     :config 
     (elpy-enable))
 
-;; Add virtualenv support TODO: Make virtualenv, as described in .zshrc file
+;; Add virtualenv support 
 (use-package virtualenvwrapper
   :ensure t
   :config
@@ -1011,6 +1016,8 @@ Keybindings for the mc package
 ** Buffer updating
 #+begin_src emacs-lisp
 (global-set-key (kbd "<f5>") 'revert-buffer)
+
+(global-set-key (kbd "C-x C-b") 'buffer-menu) ;; List buffer in current window
 #+end_src
 * Custom
 ** Indent whole buffer
@@ -1044,29 +1051,27 @@ Load custom plugins/fucntions from folder depends on environment
   ;;    :ensure nil
   ;;    :load-path "~/.emacs.d/plugins")
 #+END_SRC
-* TODO
+* TODO / Install
 ** Linux
-- Add Saving desktop and history sessions. With saving themes (almost done)
+- Test, that enabling desktop-save Saving desktop and history sessions. With saving themes (almost done)
 ** All OS
-- Show git changes always even after exit from emacs (via + -)
-- Setup window management Hydra+ace-window [[https://github.com/abo-abo/hydra/wiki/Window-Management][Like this]]
-- Add some usefull Hydra hotkeys (like gotoline)
-- Add adding workspaces (to quickly go to project)
-- Add environment Macbook to load plugins for macbook (load-path ('.../macbook.el') or so)
-- Setup correct PATH (watch templates + init.origin.org)
-- Add icons (like in sublime folders)
-- Auto completition and highlight text in files
-- Python support (highlight & autocomplete)
-- Move from init.origin to current
-- Setup org with visualization miscs
-- MAKE TODO: (search by file)
+*** Important
+- [[https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/][Speed up Emacs]]
+- Check more plugins [[https://github.com/emacs-tw/awesome-emacs][Here]] [[https://xmodulo.com/best-plugins-to-increase-productivity-on-emacs.html][And here]]
+- Install indent XML and JSON. Code snippets for html and js
+- Python support (highlight & autocomplete & indent & virtualenvironments)
+- Add workspaces support (to quickly go to project)
+- Add support of 'Find everywhere swipper or councel' find file -> type short, searches everywhere, starts ./*
 - Make as in [[https://github.com/hlissner/doom-emacs/tree/screenshots][DoomEmacs]]:
   - Tab emulation
   - Visualization of files with icons, branches, etc.
-  - Diff in gutter (git)
   - mode-line
   - Line numberring(nlinum)
-  - Chech company mode
-- Check more plugins [[https://github.com/emacs-tw/awesome-emacs][Here]] [[https://xmodulo.com/best-plugins-to-increase-productivity-on-emacs.html][And here]]
-  
+  - Check company mode  
+- Setup window management Hydra+ace-window [[https://github.com/abo-abo/hydra/wiki/Window-Management][Like this]]
+*** Can wait
 - Orgmode for GTD [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][Here]]
+- Add environment i-am-working (or mac) and search in current config 'i-am-working' how to load it
+- Add icons (like in sublime folders)
+- Add environment Macbook to load plugins for macbook (load-path ('.../macbook.el') or so, for example load paths for mac special)
+- Add some usefull Hydra hotkeys (like gotoline)
