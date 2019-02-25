@@ -1065,6 +1065,7 @@ Load custom plugins/fucntions from folder depends on environment
 *** Important
 - [[https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/][Speed up Emacs]]
 - Add autoindent and code suggestions in JS/HTML/CSS
+- Check how save backup files with # in .emacs.d only
 - Check more plugins [[https://github.com/emacs-tw/awesome-emacs][Here]] [[https://xmodulo.com/best-plugins-to-increase-productivity-on-emacs.html][And here]]
 - Install indent XML and JSON. Code snippets for html and js
 - Python support (highlight & autocomplete & indent & virtualenvironments)
