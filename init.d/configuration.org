@@ -873,14 +873,18 @@ and follow that with the zen-coding plugin keystroke (CMD+E in TextMate), the pl
 (use-package elpy
     :ensure t
     :config 
-    (elpy-enable))
+    (elpy-enable)
+    :pin melpa-stable)
 
-;; Add virtualenv support 
-(use-package virtualenvwrapper
-  :ensure t
-  :config
-  (venv-initialize-interactive-shells)
-  (venv-initialize-eshell))
+;; Add virtualenv support -> add mac environment
+(when (memq window-system '(mac ns))
+  (use-package virtualenvwrapper
+    :ensure t
+    :config
+    (venv-initialize-interactive-shells)
+    (venv-initialize-eshell)
+    :pin melpa-stable)
+)
 #+END_SRC
 *** Go
 Go code helpers. [[https://tleyden.github.io/blog/2014/05/22/configure-emacs-as-a-go-editor-from-scratch/][see also]]
@@ -978,10 +982,15 @@ Color haxvalues with their respective color.
 *** Docker
 ** Texts
 *** Markdown
-
     #+BEGIN_SRC emacs-lisp
-      (use-package markdown-mode
-       	:pin melpa-stable)
+    (use-package markdown-mode
+       :ensure t
+       :commands (markdown-mode gfm-mode)
+       :mode (("README\\.md\\'" . gfm-mode)
+             ("\\.md\\'" . markdown-mode)
+             ("\\.markdown\\'" . markdown-mode))
+       :init (setq markdown-command "multimarkdown")
+       :pin melpa-stable)
     #+END_SRC
 
 *** Multi-cursors
@@ -1052,11 +1061,10 @@ Load custom plugins/fucntions from folder depends on environment
   ;;    :load-path "~/.emacs.d/plugins")
 #+END_SRC
 * TODO / Install
-** Linux
-- Test, that enabling desktop-save Saving desktop and history sessions. With saving themes (almost done)
 ** All OS
 *** Important
 - [[https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/][Speed up Emacs]]
+- Add autoindent and code suggestions in JS/HTML/CSS
 - Check more plugins [[https://github.com/emacs-tw/awesome-emacs][Here]] [[https://xmodulo.com/best-plugins-to-increase-productivity-on-emacs.html][And here]]
 - Install indent XML and JSON. Code snippets for html and js
 - Python support (highlight & autocomplete & indent & virtualenvironments)

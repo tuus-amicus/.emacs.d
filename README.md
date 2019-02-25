@@ -3,11 +3,11 @@
 Before you clone repo, make sure you have everything described bellow:
 
 * Install [Hack font](https://github.com/source-foundry/Hack)
-
+* If you wanna more pretty interface(also available *desktop-save* mode), better install **emacs26**. Emacs25 has lower interface highlight and not works properly with desktop-save mode
 * Choose your side: 
     Configuration has 2 environments:
-        - Secure
-        - Not secure
+        - *Secure*
+        - *Not secure*
 
     If you'll like to choose **secure** one, emacs may need **gnutls-cli** and **python** installed. Current configuration use Not secure, because sometimes occur certificate error.
 
