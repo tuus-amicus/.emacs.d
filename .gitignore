@@ -5,6 +5,7 @@ el-get/
 elpa
 /history
 ac-comphist.dat
+*#*
 .*
 .#*
 configuration.el

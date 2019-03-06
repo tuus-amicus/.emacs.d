@@ -1092,6 +1092,25 @@ Load custom plugins/fucntions from folder depends on environment
   ;;    :load-path "~/.emacs.d/plugins")
 #+END_SRC
 
+** Styles for c++
+#+BEGIN_SRC emacs-lisp
+  (c-add-style "dee-style" 
+    '("linux"
+    (c-basic-offset . 8)          ; indent by four spaces
+    (tab-width . 8)               ; Tab width
+    (indent-tabs-mode . t)        ; tabs
+    (c-offsets-alist . ((inline-open . 0)  ; custom indentation rules
+    (brace-list-open . 0)
+    (statement-case-open . +)   ; Open braces ident from start of line
+    (case-label . +)
+    (substatement-open . 0))))) ; Open braces on the start of line
+  
+  (defun my-c++-mode-hook ()
+  (c-set-style "dee-style")        ; use my-style defined above
+  (auto-fill-mode)
+(add-hook 'c++-mode-hook 'my-c++-mode-hook)
+;  (c-toggle-auto-hungry-state 1)) ; On new line, while put braces
+#+END_SRC
 * TODO / Install
 ** All OS
 *** Important
@@ -1119,3 +1138,23 @@ Load custom plugins/fucntions from folder depends on environment
 - Add icons (like in sublime folders)
 - Add environment Macbook to load plugins for macbook (load-path ('.../macbook.el') or so, for example load paths for mac special)
 - Add some usefull Hydra hotkeys (like gotoline)
+** Packages to Install / Check
+There is list of packages i used to use. Check needed
+==indent-guide==
+==json-mode==
+==pip-requirements==
+==popup==
+==powerline==
+==py-autopep8==
+==linum-mode ;; numerations of lines==
+==pyvenv==
+==virtualenvwrapper==
+==dash==
+==python-environment==
+==package==
+==let-alist==
+==py-isort==
+==python-mode==
+==ipython== ==MAYBE==
+
+
