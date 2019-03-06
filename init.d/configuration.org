@@ -208,6 +208,22 @@ Show column number in the info bar
    #+BEGIN_SRC emacs-lisp
       (column-number-mode 1)
    #+END_SRC
+*** Org-mode
+Add beautifull visualisation of paragraphs instead of asterix
+  def someFunc():
+      print(
+#+BEGIN_SRC emacs-lisp
+  
+(use-package org-bullets
+:ensure t
+    :config
+    (setq org-hide-leading-stars t)
+    (add-hook 'org-mode-hook
+              (lambda ()
+                (org-bullets-mode t)))
+  )
+
+#+END_SRC
 ** Behaviour
 *** Paths / Environment
 #+BEGIN_SRC emacs-lisp
@@ -616,6 +632,7 @@ Display the buffer state in the fringe.
  Packages that helps speed up coding, i.e. auto complete, boiler plates etc
 **** Autocomplete
 Some people choose Autocomple, some Company. I choose both
+Also auto-complete filepaths
 #+begin_src emacs-lisp
 (use-package auto-complete 
     :ensure t
@@ -735,6 +752,18 @@ Disable clang check, gcc check works better.
        (use-package flycheck
          :config
          (add-hook 'after-init-hook #'global-flycheck-mode)
+         (add-hook 'python-mode-hook             #'flycheck-mode)
+         (add-hook 'js-mode-hook                 #'flycheck-mode)
+         (add-hook 'web-mode-hook                #'flycheck-mode)
+         (add-hook 'lisp-interaction-mode-hook   #'flycheck-mode)
+         (add-hook 'fish-mode-hook               #'flycheck-mode)
+         (add-hook 'markdown-mode-hook           #'flycheck-mode)
+         (add-hook 'go-mode-hook                 #'flycheck-mode)
+         (setq flycheck-check-syntax-automatically '(mode-enabled save idle-change))
+         (setq flycheck-highlighting-mode 'lines)
+         (setq flycheck-indication-mode 'left-fringe)
+         (setq flycheck-checker-error-threshold 2000)
+         
          ;; Current version of rst-sphinx for flycheck disabling it
          (add-to-list 'auto-mode-alist '("\\.rst\\'" .
                                          (lambda () (rst-mode) (flycheck-mode -1))))
@@ -1021,13 +1050,15 @@ Keybindings for the mc package
         :after (multiple-cursors)
         :pin melpa-stable)
 #+END_SRC
-* Key bindings
+* Key bindings / markup
 ** Buffer updating
 #+begin_src emacs-lisp
 (global-set-key (kbd "<f5>") 'revert-buffer)
 
 (global-set-key (kbd "C-x C-b") 'buffer-menu) ;; List buffer in current window
 #+end_src
+** Org-mode markup
+ *Bold* /italic/ =verbatim=, +strikethrough+
 * Custom
 ** Indent whole buffer
 #+BEGIN_SRC emacs-lisp
@@ -1060,9 +1091,13 @@ Load custom plugins/fucntions from folder depends on environment
   ;;    :ensure nil
   ;;    :load-path "~/.emacs.d/plugins")
 #+END_SRC
+
 * TODO / Install
 ** All OS
 *** Important
+- Setup by templates .org from other configs neeeded tools
+- Python as IDE:
+  [[https://habr.com/ru/post/303600/][First tutor]]
 - [[https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/][Speed up Emacs]]
 - Add autoindent and code suggestions in JS/HTML/CSS
 - Check how save backup files with # in .emacs.d only
