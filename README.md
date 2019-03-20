@@ -36,5 +36,27 @@ git clone https://github.com/tuus-amicus/emacs-from-scratch ~/.emacs.d
 
 ```
 
+# Install python environments
+Python mode requires some pip packages installed to work correct:
+
+``` shell
+# Either of these
+pip install rope
+pip install jedi
+# flake8 for code checks
+pip install flake8
+# and autopep8 for automatic PEP8 formatting
+pip install autopep8
+# and yapf for code formatting
+pip install yapf
+One-line install: pip install rope jedi flake8 autopep8 yapf
+```
+
+**Debian ≥10 or Ubuntu ≥18.10** can skip the instructions above this line and may simply install Elpy and all of its recommended dependencies with the following command::
+
+```shell
+sudo apt install elpa-elpy
+```
+
 ***
 >It was tesetd on **mac** and **linux**. 
