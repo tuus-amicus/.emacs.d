@@ -492,7 +492,7 @@ Use the counsel and swiper packages to make the use of M-x and search a lot easi
 ;; Maybe swipper or councel is analog of that command
 #+BEGIN_SRC emacs-lisp
 (use-package imenu
-    :bind (("<F4>" . imenu)) ;; Вызов imenu по F4
+    :bind (("<f7>" . imenu)) ;; Вызов imenu по F7
     :ensure t
     :config
     (setq imenu-auto-rescan  t) ;; automaticaly refresh list of functions in buffer
@@ -588,6 +588,7 @@ Easy move between seperate buffers
      groups to avoid cluttering the ibuffer.
      #+BEGIN_SRC emacs-lisp
        (use-package ibuffer
+         :bind (("<f8>" . ibuffer)) ;; Вызов по F8
          :config
          (defalias 'list-buffers 'ibuffer)
          (setq-default ibuffer-expert t ;; Don't ask when closing unmodified buffers
