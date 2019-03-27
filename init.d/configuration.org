@@ -232,11 +232,11 @@ Add beautifull visualisation of paragraphs instead of asterix
 #+BEGIN_SRC emacs-lisp
 (use-package exec-path-from-shell
   :config
+  (exec-path-from-shell-initialize)
+  (add-to-list 'exec-path "/usr/local/bin/virtualenv"))
   (when (memq window-system '(mac ns))
     (exec-path-from-shell-copy-env "GOPATH")
-    (exec-path-from-shell-copy-env "PYTHONPATH")
-    (exec-path-from-shell-initialize))
-    (add-to-list 'exec-path "/usr/local/bin/virtualenv"))
+    (exec-path-from-shell-copy-env "PYTHONPATH"))
 #+END_SRC
 
 *** Recent Files
@@ -434,6 +434,11 @@ Use the counsel and swiper packages to make the use of M-x and search a lot easi
      :map ivy-minibuffer-map
      ("M-y" . ivy-next-line)))
 
+  (use-package fzf
+     :ensure t
+     :bind
+     ("C-c z" . counsel-fzf)
+  )
   (use-package swiper
     :pin melpa-stable
     :diminish ivy-mode
@@ -1352,6 +1357,11 @@ Load custom plugins/fucntions from folder depends on environment
 - Python as IDE:  [[https://habr.com/ru/post/303600/][First tutor]]
 - [[https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/][Speed up Emacs]]
 - Add autoindent and code suggestions in JS/HTML/CSS
+- Read Hydra tutorials 
+- Setup counsel-fzf 
+    * Try with hydra
+      or
+    * Try with setq counsel--fzf-directory or simmilar
 - Check how save backup files with # in .emacs.d only
 - Check more plugins [[https://github.com/emacs-tw/awesome-emacs][Here]] [[https://xmodulo.com/best-plugins-to-increase-productivity-on-emacs.html][And here]]
 - Install indent XML and JSON. Code snippets for html and js
