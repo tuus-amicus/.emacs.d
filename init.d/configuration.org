@@ -1350,38 +1350,41 @@ Load custom plugins/fucntions from folder depends on environment
     ; (c-toggle-auto-hungry-state 1) ; On new line, while put braces
 #+END_SRC
 * TODO / Install
-** All OS
-*** Important
-- Setup by templates .org from other configs neeeded tools
-- Setup ibuffer (or buffer) to orginize content by file extensions or by modes
-- Python as IDE:  [[https://habr.com/ru/post/303600/][First tutor]]
-- [[https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/][Speed up Emacs]]
-- Add autoindent and code suggestions in JS/HTML/CSS
-- Read Hydra tutorials 
-- Setup counsel-fzf 
-    * Try with hydra
-      or
-    * Try with setq counsel--fzf-directory or simmilar
-- Check how save backup files with # in .emacs.d only
-- Check more plugins [[https://github.com/emacs-tw/awesome-emacs][Here]] [[https://xmodulo.com/best-plugins-to-increase-productivity-on-emacs.html][And here]]
-- Install indent XML and JSON. Code snippets for html and js
-- Python support (highlight & autocomplete & indent & virtualenvironments)
-- Add workspaces support (to quickly go to project)
-- Add support of 'Find everywhere swipper or councel' find file -> type short, searches everywhere, starts ./*
-- Make as in [[https://github.com/hlissner/doom-emacs/tree/screenshots][DoomEmacs]]:
+** Important [5%]
+- [ ] Setup by templates .org from other configs neeeded tools
+- [ ] Install bookmarks projects/workflows
+- [ ] Setup fzf with emacs. [0/1]
+  - [ ] Setup gitignore (fd utility)
+- [ ] Setup ibuffer (or buffer) to orginize content by file extensions or by modes
+- [X] Python as IDE:  [[https://habr.com/ru/post/303600/][First tutor]]
+- [ ] Setup python with yasnippets like sublime (auto indent, competition)
+- [ ] Add autoindent and code suggestions in JS/HTML/CSS
+- [ ] Read Hydra tutorials 
+- [ ] [[https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/][Speed up Emacs]] (Mac)
+- [ ] Setup counsel-fzf 
+  * Try with hydra
+    or
+  * Try with setq counsel--fzf-directory or simmilar
+- [ ] Check how save backup files with # in .emacs.d only
+- [ ] Check more plugins [[https://github.com/emacs-tw/awesome-emacs][Here]] [[https://xmodulo.com/best-plugins-to-increase-productivity-on-emacs.html][And here]]
+- [ ] Install indent XML and JSON. Code snippets for html and js
+- [ ] Python support (highlight & autocomplete & indent & virtualenvironments)
+- [ ] Add workspaces support (to quickly go to project)
+- [ ] Add support of 'Find everywhere swipper or councel' find file -> type short, searches everywhere, starts ./*
+- [ ] Make as in [[https://github.com/hlissner/doom-emacs/tree/screenshots][DoomEmacs]]:
   - Tab emulation
   - Visualization of files with icons, branches, etc.
   - mode-line
   - Line numberring(nlinum)
   - Check company mode  
-- Setup window management Hydra+ace-window [[https://github.com/abo-abo/hydra/wiki/Window-Management][Like this]]
-*** Can wait
-- Orgmode for GTD [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][Here]]
-- Setup [[https://github.com/emacs-dashboard/emacs-dashboard][Dashboard]]
-- Add environment i-am-working (or mac) and search in current config 'i-am-working' how to load it
-- Add icons (like in sublime folders)
-- Add environment Macbook to load plugins for macbook (load-path ('.../macbook.el') or so, for example load paths for mac special)
-- Add some usefull Hydra hotkeys (like gotoline)
+- [ ] Setup window management Hydra+ace-window [[https://github.com/abo-abo/hydra/wiki/Window-Management][Like this]]
+** Can wait [0/6]
+- [ ] Orgmode for GTD [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][Here]]
+- [ ] Setup [[https://github.com/emacs-dashboard/emacs-dashboard][Dashboard]]
+- [ ] Add environment i-am-working (or mac) and search in current config 'i-am-working' how to load it
+- [ ] Add icons (like in sublime folders(left-panel))
+- [ ] Add environment Macbook to load plugins for macbook (load-path ('.../macbook.el') or so, for example load paths for mac special)
+- [ ] Add some usefull Hydra hotkeys (like gotoline)
 ** Packages to Install / Check
 There is list of packages i used to use. Check needed
 ==indent-guide==
