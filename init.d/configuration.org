@@ -739,12 +739,14 @@ Assign a custom hint to this group of functions, so that you know immediately af
 *** Folders as tree Neotree
 #+BEGIN_SRC emacs-lisp
 (use-package neotree
+  :ensure t
+  :bind (("<f6>" . neotree-toggle))
   :config
-  (setq neo-theme 'arrow
+  (setq neo-theme 'icons
         neotree-smart-optn t
-        neo-window-fixed-size nil)
+        neo-window-fixed-size nil))
   ;; Disable linum for neotree
-  (add-hook 'neo-after-create-hook 'disable-neotree-hook))
+  ;(add-hook 'neo-after-create-hook 'disable-neotree-hook))
 #+END_SRC
 
 *** Undo tree
@@ -758,6 +760,43 @@ Assign a custom hint to this group of functions, so that you know immediately af
   (global-undo-tree-mode 1))
 #+END_SRC
 
+*** UI
+**** [[https://github.com/domtronn/all-the-icons.el][AllTheIcons]] & [[https://github.com/domtronn/all-the-icons.el/tree/master/fonts][Fonts]]
+#+BEGIN_SRC emacs-lisp
+  (use-package all-the-icons
+    :config
+    (setq all-the-icons-color-icons t
+          all-the-icons-for-buffer t)
+    :pin melpa-stable)
+#+END_SRC
+
+First time you need to install fonts:
+#+BEGIN_SRC emacs-lisp :tangle no
+(all-the-icons-install-fonts)
+#+END_SRC
+**** Ivy all-the-icons
+add find-file icons visualization
+#+BEGIN_SRC emacs-lisp
+(use-package all-the-icons-ivy
+:init (all-the-icons-ivy-setup)
+)
+#+END_SRC
+**** Modeline customization
+Setup doomemacs modeline
+A fancy and fast mode-line inspired by minimalism design.
+
+It's integrated into [[https://github.com/hlissner/doom-emacs][Doom Emacs]] and [[https://github.com/seagle0128/.emacs.d][Centaur Emacs]].
+
+For more info [[https://github.com/seagle0128/doom-modeline][GithubProject]]
+#+BEGIN_SRC emacs-lisp
+(use-package doom-modeline
+      :ensure t
+      :hook (after-init . doom-modeline-mode)
+      :pin melpa-stable)
+#+END_SRC
+
+This package requires the fonts included with all-the-icons to be installed. 
+Run M-x all-the-icons-install-fonts to do so. Please refer to the installation guide.
 ** Programming
 *** Magit (Version Control)
 Magit is the only thing you need when it comes to Version Control (Git)
@@ -1351,7 +1390,7 @@ Load custom plugins/fucntions from folder depends on environment
     ; (c-toggle-auto-hungry-state 1) ; On new line, while put braces
 #+END_SRC
 * TODO / Install
-** Important [5%]
+** Important [17%]
 - [ ] Setup by templates .org from other configs neeeded tools
 - [ ] Install bookmarks projects/workflows
 - [ ] Setup fzf with emacs. [0/1]
@@ -1362,31 +1401,32 @@ Load custom plugins/fucntions from folder depends on environment
 - [ ] Add autoindent and code suggestions in JS/HTML/CSS
 - [ ] Read Hydra tutorials 
 - [ ] [[https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/][Speed up Emacs]] (Mac)
-- [ ] Setup counsel-fzf 
+- [X] Setup counsel-fzf 
   * Try with hydra
     or
   * Try with setq counsel--fzf-directory or simmilar
-- [ ] Check how save backup files with # in .emacs.d only
-- [ ] Check more plugins [[https://github.com/emacs-tw/awesome-emacs][Here]] [[https://xmodulo.com/best-plugins-to-increase-productivity-on-emacs.html][And here]]
+- [X] Check how save backup files with # in .emacs.d only
 - [ ] Install indent XML and JSON. Code snippets for html and js
 - [ ] Python support (highlight & autocomplete & indent & virtualenvironments)
 - [ ] Add workspaces support (to quickly go to project)
 - [ ] Add support of 'Find everywhere swipper or councel' find file -> type short, searches everywhere, starts ./*
-- [ ] Make as in [[https://github.com/hlissner/doom-emacs/tree/screenshots][DoomEmacs]]:
-  - Tab emulation
-  - Visualization of files with icons, branches, etc.
-  - mode-line
-  - Line numberring(nlinum)
-  - Check company mode  
+- [-] Make as in [[https://github.com/hlissner/doom-emacs/tree/screenshots][DoomEmacs]]: [80%]
+  - [ ] Tab emulation
+  - [X] Visualization of files with icons, branches, etc.
+  - [X] mode-line
+  - [X] Line numberring(nlinum)
+  - [X] Check company mode  
 - [ ] Setup window management Hydra+ace-window [[https://github.com/abo-abo/hydra/wiki/Window-Management][Like this]]
-** Can wait [0/6]
+** Can wait [1/6]
 - [ ] Orgmode for GTD [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][Here]]
 - [ ] Setup [[https://github.com/emacs-dashboard/emacs-dashboard][Dashboard]]
 - [ ] Add environment i-am-working (or mac) and search in current config 'i-am-working' how to load it
-- [ ] Add icons (like in sublime folders(left-panel))
+- [X] Add icons (like in sublime folders(left-panel))
 - [ ] Add environment Macbook to load plugins for macbook (load-path ('.../macbook.el') or so, for example load paths for mac special)
 - [ ] Add some usefull Hydra hotkeys (like gotoline)
+- [ ] Customize your Mode-line [[https://github.com/domtronn/all-the-icons.el/wiki/Mode-Line][here]]
 ** Packages to Install / Check
+Check more plugins [[https://github.com/emacs-tw/awesome-emacs][Here]] [[https://xmodulo.com/best-plugins-to-increase-productivity-on-emacs.html][And here]]
 There is list of packages i used to use. Check needed
 ==indent-guide==
 ==json-mode==
@@ -1403,5 +1443,4 @@ There is list of packages i used to use. Check needed
 ==py-isort==
 ==python-mode==
 ==ipython== ==MAYBE==
-
 
