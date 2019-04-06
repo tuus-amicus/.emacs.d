@@ -828,13 +828,14 @@ Display the buffer state in the fringe.
 Some people choose Autocomple, some Company. I choose both
 Also auto-complete filepaths
 #+begin_src emacs-lisp
-(use-package auto-complete 
-    :ensure t
-    :init
-(progn
-   (ac-config-default)
-      (global-auto-complete-mode t)
- ))
+  ;; No needs to use auto-complete, where is company enabled
+  ;; (use-package auto-complete 
+  ;;     :ensure t
+  ;;     :init
+  ;; (progn
+  ;;    (ac-config-default)
+  ;;       (global-auto-complete-mode t)
+  ;;  ))
 #+end_src
 **** Company
   Configure company to work similar to auto complete. Disabled most
@@ -904,9 +905,6 @@ Also auto-complete filepaths
      
  #+BEGIN_SRC emacs-lisp
    ;; Python autocomplete
-   ;; (defun my/python-mode-hook ()
-   ;; (add-to-list 'company-backends 'company-jedi))
-
    (use-package company-jedi
      :ensure t
      :after (company)
@@ -914,7 +912,6 @@ Also auto-complete filepaths
      (autoload 'jedi:setup "jedi" nil t)
      (add-hook 'python-mode-hook 'jedi:setup)
      (add-to-list 'company-backends 'company-jedi))
-   ;  (add-hook 'python-mode-hook 'my/python-mode-hook) 
   #+END_SRC 
      
  Tell emacs it's safe to change these company variables in a
@@ -923,14 +920,46 @@ Also auto-complete filepaths
        (put 'company-clang-executable 'safe-local-variable #'stringp)
        (put 'company-clang-arguments 'safe-local-variable #'listp)
  #+END_SRC
+
+Enable pop-up
+#+BEGIN_SRC emacs-lisp
+; (use-package company-quickhelp
+;   :config
+; (company-quickhelp-mode 1)
+#+END_SRC  
+
 **** Yasnippet
-     Enable yasnippet
+Enable yasnippet
+
      #+BEGIN_SRC emacs-lisp
        (use-package yasnippet
          :config
          (yas-global-mode 1)
          ;(setq yas-indent-line nil)			
          :pin melpa-stable)
+     #+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+;; Install yasnippets
+(use-package yasnippet-snippets)
+#+END_SRC
+Make it compataible with company-mode in elpy
+[[https://github.com/jorgenschaefer/elpy/wiki/FAQ][How to solve company, yasnippet conflicts?]]
+
+     #+BEGIN_SRC emacs-lisp
+     (defun company-yasnippet-or-completion ()
+         "Solve company yasnippet conflicts."
+         (interactive)
+         (let ((yas-fallback-behavior
+             (apply 'company-complete-common nil)))
+             (yas-expand)))
+         
+         (add-hook 'company-mode-hook
+          (lambda ()
+            (substitute-key-definition
+             'company-complete-common
+             'company-yasnippet-or-completion
+             company-active-map)))
      #+END_SRC
 *** Indent all (Format)
 Formatting all by command. Tries to expect what file is and indenting it
@@ -1108,7 +1137,11 @@ and follow that with the zen-coding plugin keystroke (CMD+E in TextMate), the pl
 ** Programming languages
 *** Python
 Before setup configs, you need to install pip modules:
+**** Elpy
+[[https://github.com/jorgenschaefer/elpy/wiki][GithubWiki]]
 
+Elpy is an Emacs package to bring powerful Python editing to Emacs.
+It combines and configures a number of other packages, both written in Emacs Lisp as well as Python.
 ==pip3 / pip install jedi rope flake8 autopep8 yapf==
 # Either of these
 ==pip install rope==
@@ -1390,33 +1423,33 @@ Load custom plugins/fucntions from folder depends on environment
     ; (c-toggle-auto-hungry-state 1) ; On new line, while put braces
 #+END_SRC
 * TODO / Install
-** Important [17%]
+** Important [56%]
 - [ ] Setup by templates .org from other configs neeeded tools
 - [ ] Install bookmarks projects/workflows
-- [ ] Setup fzf with emacs. [0/1]
-  - [ ] Setup gitignore (fd utility)
-- [ ] Setup ibuffer (or buffer) to orginize content by file extensions or by modes
-- [X] Python as IDE:  [[https://habr.com/ru/post/303600/][First tutor]]
-- [ ] Setup python with yasnippets like sublime (auto indent, competition)
+  - [ ] Add workspaces support (to quickly go to project)
 - [ ] Add autoindent and code suggestions in JS/HTML/CSS
 - [ ] Read Hydra tutorials 
 - [ ] [[https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/][Speed up Emacs]] (Mac)
+- [ ] Install indent XML and JSON. Code snippets for html and js
+- [ ] Setup window management Hydra+ace-window [[https://github.com/abo-abo/hydra/wiki/Window-Management][Like this]]
+- [X] Setup fzf with emacs. [1/1]
+  - [X] Setup gitignore (fd utility)
+- [X] Setup ibuffer (or buffer) to orginize content by file extensions or by modes
+- [X] Python as IDE:  [[https://habr.com/ru/post/303600/][First tutor]]
+- [X] Setup python with yasnippets like sublime (auto indent, competition)
 - [X] Setup counsel-fzf 
   * Try with hydra
     or
   * Try with setq counsel--fzf-directory or simmilar
 - [X] Check how save backup files with # in .emacs.d only
-- [ ] Install indent XML and JSON. Code snippets for html and js
-- [ ] Python support (highlight & autocomplete & indent & virtualenvironments)
-- [ ] Add workspaces support (to quickly go to project)
-- [ ] Add support of 'Find everywhere swipper or councel' find file -> type short, searches everywhere, starts ./*
-- [-] Make as in [[https://github.com/hlissner/doom-emacs/tree/screenshots][DoomEmacs]]: [80%]
-  - [ ] Tab emulation
+- [X] Python support (highlight & autocomplete & indent & virtualenvironments)
+- [X] Add support of 'Find everywhere swipper or councel' find file -> type short, searches everywhere, starts ./*
+- [X] Make as in [[https://github.com/hlissner/doom-emacs/tree/screenshots][DoomEmacs]]: [100%]
+  - [X] Tab emulation
   - [X] Visualization of files with icons, branches, etc.
   - [X] mode-line
   - [X] Line numberring(nlinum)
   - [X] Check company mode  
-- [ ] Setup window management Hydra+ace-window [[https://github.com/abo-abo/hydra/wiki/Window-Management][Like this]]
 ** Can wait [1/6]
 - [ ] Orgmode for GTD [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][Here]]
 - [ ] Setup [[https://github.com/emacs-dashboard/emacs-dashboard][Dashboard]]
@@ -1427,20 +1460,19 @@ Load custom plugins/fucntions from folder depends on environment
 - [ ] Customize your Mode-line [[https://github.com/domtronn/all-the-icons.el/wiki/Mode-Line][here]]
 ** Packages to Install / Check
 Check more plugins [[https://github.com/emacs-tw/awesome-emacs][Here]] [[https://xmodulo.com/best-plugins-to-increase-productivity-on-emacs.html][And here]]
-There is list of packages i used to use. Check needed
-==indent-guide==
-==json-mode==
-==pip-requirements==
-==popup==
-==powerline==
-==py-autopep8==
-==pyvenv==
-==virtualenvwrapper==
-==dash==
-==python-environment==
-==package==
-==let-alist==
-==py-isort==
-==python-mode==
-==ipython== ==MAYBE==
+There is list of packages i am used to use. Check of installing required:
+
+indent-guide
+json-mode
+pip-requirements
+popup
+powerline
+pyvenv
+virtualenvwrapper
+~~dash~~ A modern list api for Emacs. No 'cl required.
+python-environment
+let-alist
+py-isort
+
+
 

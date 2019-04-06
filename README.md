@@ -58,5 +58,14 @@ One-line install: pip install rope jedi flake8 autopep8 yapf
 sudo apt install elpa-elpy
 ```
 
+# Install fonts and snippets
+To make sure, that snippets & icons working properly install it:
+
+``` emacs-lisp
+M-x package-refresh-contents
+M-x package-install yasnippet-snippets
+M-x all-the-icons-install-fonts
+```
+
 ***
 >It was tesetd on **mac** and **linux**. 
