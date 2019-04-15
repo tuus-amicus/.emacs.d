@@ -1185,6 +1185,10 @@ It combines and configures a number of other packages, both written in Emacs Lis
     :pin melpa-stable)
 )
 
+;; Install virtualenv with wrapper for python install correctness
+(use-package virtualenv)
+(use-package virtualenvwrapper)
+
 (use-package pip-requirements
   :config
   (add-hook 'pip-requirements-mode-hook #'pip-requirements-auto-complete-setup))
