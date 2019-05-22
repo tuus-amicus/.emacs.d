@@ -2,7 +2,7 @@
 
 Before you clone repo, make sure you have everything described bellow:
 
-* Install [Hack font](https://github.com/source-foundry/Hack)
+* Install [Hack font](https://github.com/source-foundry/Hack) or [Source Code Pro font](https://fontstorage.com/ru/font/paul-hunt/source-code-pro)
 * If you wanna more pretty interface(also available *desktop-save* mode), better install **emacs26**. Emacs25 has lower interface highlight and not works properly with desktop-save mode
 * Choose your side: 
     Configuration has 2 environments:
